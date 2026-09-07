@@ -32,6 +32,11 @@ export default function Home() {
     }
   };
 
+  const handleAnalyzeFile = (filename: string) => {
+    const customPrompt = `Perform technical analysis on uploaded file '${filename}', run calculations in sandbox, and generate Word report, Excel sheet, and PowerPoint presentation deck.`;
+    handleExecutePrompt(customPrompt);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-slate-950">
       {/* Header */}
@@ -74,7 +79,7 @@ export default function Home() {
             <ChatInterface onExecutePrompt={handleExecutePrompt} isLoading={isLoading} />
           </div>
           <div>
-            <KnowledgeRAGManager />
+            <KnowledgeRAGManager onAnalyzeFile={handleAnalyzeFile} />
           </div>
         </div>
 
