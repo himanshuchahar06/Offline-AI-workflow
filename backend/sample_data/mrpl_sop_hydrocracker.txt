@@ -1,0 +1,28 @@
+================================================================================
+MRPL STANDARD OPERATING PROCEDURE (SOP-HC-2026-04)
+UNIT: HYDROCRACKER UNIT II (HCU-II) - MANGALORE REFINERY
+SUBJECT: EMERGENCY SHUTDOWN AND SAFE DEPRESSURIZATION PROTOCOL
+CLASSIFICATION: RESTRICTED / CONFIDENTIAL INDUSTRIAL KNOWLEDGE
+================================================================================
+
+1. PURPOSE & SCOPE
+This Standard Operating Procedure defines the mandatory sequence of actions required to safely execute an emergency shutdown and controlled depressurization of HCU-II high-pressure reaction loop (V-101/V-102 reactors) during thermal runaway or feed pump failure.
+
+2. SAFE OPERATING LIMITS (SOL)
+- Reactor Peak Bed Temp Limit: 415 °C Max (Trigger quench hydrogen at 405 °C)
+- High Pressure Separator Operating Pressure: 138.5 bar(g)
+- Maximum Safe Depressurization Rate: 2.1 bar/min (To prevent thermal stress on SA-336 F22 Cladding)
+- Hydrogen-to-Oil Ratio: Minimum 850 Nm³/m³
+
+3. EMERGENCY SHUTDOWN PROCEDURE (TRIP STEP SEQUENCE)
+Step 3.1: Activate Emergency De-energization Button (EDB-HC-01) on DCS Console.
+Step 3.2: Verify automatic closing of Feed Isolation Valves XIV-1001 and XIV-1002 within 4.5 seconds.
+Step 3.3: Open Emergency Depressurization Valve (EDPV-101) to cold flare header.
+Step 3.4: Inject Quench Hydrogen Gas via FCV-108A/B to maintain reactor bed temperatures below 400 °C.
+Step 3.5: Maintain wash water injection pump P-105A at 12.5 m³/hr to prevent ammonium bisulfide (NH4HS) crystallization in REAC exchangers E-104A-D.
+
+4. INSPECTION & POST-SHUTDOWN AUDIT MANDATES
+Following emergency shutdown, ultrasonic thickness (UT) testing must be performed on loop piping downstream of EDPV-101 within 24 hours to inspect for erosion-corrosion.
+
+MRPL Process Safety Engineering Dept. | Approved by Chief Technical Officer
+================================================================================

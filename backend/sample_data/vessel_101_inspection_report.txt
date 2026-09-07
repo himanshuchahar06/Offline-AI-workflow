@@ -1,0 +1,41 @@
+================================================================================
+MRPL REFINERY ASSET INTEGRITY & INSPECTION AUDIT REPORT
+REPORT REF: AIR-2026-V101-OCT
+EQUIPMENT TAG: V-101 SECONDARY HYDROGENATOR VESSEL
+LOCATION: DIESEL HYDROTREATER (DHT) BLOCK - PLANT 3
+INSPECTION DATE: AUGUST 28, 2026
+CLASSIFICATION: CONFIDENTIAL / INTERNAL USE ONLY
+================================================================================
+
+1. EQUIPMENT SPECIFICATIONS
+- Design Code: ASME Section VIII Div 2
+- Material of Construction: SA-543 Type B Cl.1 + 3 mm SS317L Weld Overlay
+- Nominal Wall Thickness: 48.0 mm
+- Corrosion Allowance: 6.0 mm
+- Operating Pressure / Temp: 92.0 bar(g) / 345 °C
+
+2. NON-DESTRUCTIVE TESTING (NDT) FINDINGS
+- Ultrasonic Thickness Measurement (UTM):
+  * Shell Ring 1: 46.8 mm (Loss: 1.2 mm)
+  * Shell Ring 2 (Active Corrosion Zone): 43.1 mm (Loss: 4.9 mm)
+  * Top Dish Head: 47.2 mm (Loss: 0.8 mm)
+  * Bottom Dish Head: 46.5 mm (Loss: 1.5 mm)
+- Wet Fluorescent Magnetic Particle Inspection (WFMT):
+  * No surface breaking cracks detected on circumferential welds W-01 and W-02.
+  * Minor pitting observed near inlet nozzle N-1 (Depth: 1.1 mm max).
+
+3. CORROSION RATE & REMAINING LIFE ANALYSIS
+- Historical Baseline Thickness (2021 Turnaround): 46.2 mm at Ring 2
+- Operating Duration: 5.0 Years
+- Calculated Corrosion Rate: (46.2 mm - 43.1 mm) / 5.0 yrs = 0.62 mm/year
+- Minimum Required Thickness (t_min per ASME): 42.0 mm
+- Remaining Corrosion Allowance: 43.1 mm - 42.0 mm = 1.1 mm
+- Calculated Remaining Safe Operating Life: 1.1 mm / 0.62 mm/yr = 1.77 Years (~21 Months)
+
+4. AUDIT RECOMMENDATIONS
+- CAUTION: Vessel V-101 will reach t_min limit prior to the scheduled 2029 major overhaul.
+- ACTION REQUIRED: Schedule localized SS317L weld overlay repair or sleeve reinforcement during Q2 2027 minor shutdown.
+- Increase UT inspection frequency from 12-month interval to 6-month interval.
+
+Inspector: Senior Metallurgical Specialist, MRPL Inspection Wing
+================================================================================
