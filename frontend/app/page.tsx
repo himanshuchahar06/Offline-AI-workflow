@@ -7,6 +7,7 @@ import AgentReasoningTrace from "@/components/AgentReasoningTrace";
 import KnowledgeRAGManager from "@/components/KnowledgeRAGManager";
 import DeliverablesVault from "@/components/DeliverablesVault";
 import SandboxConsole from "@/components/SandboxConsole";
+import ChunkAnalysisViewer from "@/components/ChunkAnalysisViewer";
 import { ShieldCheck, Cpu, Award } from "lucide-react";
 
 export default function Home() {
@@ -91,6 +92,11 @@ export default function Home() {
             planSteps={agentData.plan_steps}
             verificationStatus={agentData.verification_status}
           />
+        )}
+
+        {/* Dedicated Uploaded Chunk Analysis Viewer */}
+        {agentData && agentData.plan_steps && (
+          <ChunkAnalysisViewer chunks={agentData.rag_context || []} />
         )}
 
         {/* Python Sandbox Console */}
