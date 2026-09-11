@@ -12,7 +12,10 @@ class LocalReasoningEngine:
         task_type = "general"
         model_routed = "Qwen2.5-7B-Instruct (Local)"
         
-        if any(k in prompt_lower for k in ["inspect", "vessel", "corrosion", "thickness", "ultrasonic", "wfmt"]):
+        if any(k in prompt_lower for k in ["risk", "significant risks", "evidence", "confidence", "unverified"]):
+            task_type = "risk_analysis"
+            model_routed = "Qwen2.5-7B-Instruct + Specialized Risk Auditor"
+        elif any(k in prompt_lower for k in ["inspect", "vessel", "corrosion", "thickness", "ultrasonic", "wfmt"]):
             task_type = "inspection_audit"
             model_routed = "Qwen2.5-7B-Instruct + Multimodal VLM"
         elif any(k in prompt_lower for k in ["sop", "procedure", "shutdown", "emergency", "sol", "safety"]):
