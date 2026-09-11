@@ -5,20 +5,20 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
 class XLSXDeliverableBuilder:
-    """Generates professional, styled Excel (.xlsx) workbooks for engineering calculations and procurement spreadsheets."""
+    """Upgraded enterprise Excel (.xlsx) workbook builder for calculations & RAG metrics."""
 
     @staticmethod
     def create_spreadsheet(title: str, headers: list[str], rows: list[list], summary_data: dict, output_path: str) -> str:
         wb = openpyxl.Workbook()
         ws = wb.active
-        ws.title = "Industrial Synthesis"
+        ws.title = "ODIN Synthesis"
 
-        # Gridlines enabled
+        # Enable Gridlines
         ws.views.sheetView[0].showGridLines = True
 
-        # Styles
+        # Custom Palette & Fonts
         title_font = Font(name="Calibri", size=16, bold=True, color="0F2043")
-        subtitle_font = Font(name="Calibri", size=10, italic=True, color="555555")
+        subtitle_font = Font(name="Calibri", size=10, italic=True, color="666666")
         header_font = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
         header_fill = PatternFill(start_color="0F2043", end_color="0F2043", fill_type="solid")
         
@@ -28,32 +28,31 @@ class XLSXDeliverableBuilder:
         summary_font = Font(name="Calibri", size=11, bold=True, color="0F2043")
 
         thin_border = Border(
-            left=Side(style='thin', color='D9D9D9'),
-            right=Side(style='thin', color='D9D9D9'),
-            top=Side(style='thin', color='D9D9D9'),
-            bottom=Side(style='thin', color='D9D9D9')
+            left=Side(style='thin', color='D0D7DE'),
+            right=Side(style='thin', color='D0D7DE'),
+            top=Side(style='thin', color='D0D7DE'),
+            bottom=Side(style='thin', color='D0D7DE')
         )
 
-        # Title Block
+        # Title Header Block
         ws.merge_cells("A1:G1")
         cell_title = ws["A1"]
         cell_title.value = title.upper()
         cell_title.font = title_font
         cell_title.alignment = Alignment(vertical="center")
-        ws.row_dimensions[1].height = 30
+        ws.row_dimensions[1].height = 32
 
         ws.merge_cells("A2:G2")
         cell_sub = ws["A2"]
-        cell_sub.value = "MRPL Sovereign Workbench Engine | Air-Gapped Engineering Synthesis Sheet"
+        cell_sub.value = "ODIN Sovereign AI Workbench | Air-Gapped Engineering Synthesis Sheet"
         cell_sub.font = subtitle_font
         ws.row_dimensions[2].height = 18
 
-        # Blank row 3
         ws.row_dimensions[3].height = 10
 
         # Table Header Row (Row 4)
         start_row = 4
-        ws.row_dimensions[start_row].height = 25
+        ws.row_dimensions[start_row].height = 26
         for col_num, header in enumerate(headers, 1):
             cell = ws.cell(row=start_row, column=col_num)
             cell.value = header
@@ -65,7 +64,7 @@ class XLSXDeliverableBuilder:
         # Data Rows (Row 5+)
         current_row = start_row + 1
         for row_idx, row_values in enumerate(rows):
-            ws.row_dimensions[current_row].height = 20
+            ws.row_dimensions[current_row].height = 22
             fill = row_even_fill if row_idx % 2 == 1 else row_odd_fill
             for col_idx, val in enumerate(row_values, 1):
                 cell = ws.cell(row=current_row, column=col_idx)
@@ -73,7 +72,7 @@ class XLSXDeliverableBuilder:
                 cell.fill = fill
                 cell.border = thin_border
                 
-                # Alignments
+                # Alignments & Number Formatting
                 if isinstance(val, (int, float)):
                     cell.alignment = Alignment(horizontal="right", vertical="center")
                     if isinstance(val, float):
@@ -82,12 +81,12 @@ class XLSXDeliverableBuilder:
                     cell.alignment = Alignment(horizontal="left", vertical="center")
             current_row += 1
 
-        # Summary Metrics Block below table
+        # Summary Analysis Block
         if summary_data:
             current_row += 1
-            ws.cell(row=current_row, column=1).value = "SUMMARY ANALYSIS & METRICS"
+            ws.cell(row=current_row, column=1).value = "SUMMARY ANALYSIS & METRICS MATRIX"
             ws.cell(row=current_row, column=1).font = summary_font
-            ws.row_dimensions[current_row].height = 22
+            ws.row_dimensions[current_row].height = 24
             current_row += 1
 
             for key, val in summary_data.items():
@@ -107,14 +106,14 @@ class XLSXDeliverableBuilder:
                     c_v.alignment = Alignment(horizontal="right", vertical="center")
                 current_row += 1
 
-        # Auto-fit column widths
+        # Auto-fit Column Widths
         for col in ws.columns:
             max_len = 0
             col_letter = get_column_letter(col[0].column)
             for cell in col:
-                if cell.value and cell.row > 2:  # skip merged title rows
+                if cell.value and cell.row > 2:
                     max_len = max(max_len, len(str(cell.value)))
-            ws.column_dimensions[col_letter].width = max(max_len + 4, 14)
+            ws.column_dimensions[col_letter].width = max(max_len + 5, 16)
 
         # Save workbook
         path = Path(output_path)
