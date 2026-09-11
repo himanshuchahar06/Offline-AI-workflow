@@ -42,7 +42,7 @@ export default function DeliverablesVault({ deliverables, finalResponse }: Deliv
           <Sparkles className="w-5 h-5 text-emerald-400 animate-bounce" />
           <div>
             <h3 className="font-extrabold text-slate-100 text-sm tracking-wide uppercase">
-              Real Office Deliverables Vault & Analysis Report
+              MRPL Sovereign Deliverables Vault & Analysis Report
             </h3>
             <p className="text-xs text-slate-400">Verified Binary Word, Excel & PowerPoint File Outputs</p>
           </div>
