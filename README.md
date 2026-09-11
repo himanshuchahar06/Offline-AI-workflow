@@ -8,6 +8,7 @@
 [![Security](https://img.shields.io/badge/Air--Gap-100%25%20Offline-success.style=for-the-badge&logo=shield)](https://github.com/himanshuchahar06/Offline-AI-workflow)
 [![Backend](https://img.shields.io/badge/Backend-FastAPI-009688.svg?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com)
 [![Frontend](https://img.shields.io/badge/Frontend-Next.js%2014-black.svg?style=for-the-badge&logo=next.js)](https://nextjs.org)
+[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
 **Problem Statement ID:** SIH26117 | **Theme:** Smart Automation  
 **Organization:** MRPL — Mangalore Refinery and Petrochemicals Limited  
@@ -17,7 +18,7 @@
 
 ---
 
-[🚀 Quickstart](#-quickstart--local-launch) • [🏛 Architecture](#-technical-architecture) • [🧪 Benchmark Test](#-sih-benchmark-test-case) • [📊 Deliverables](#-deliverables-generated) • [🛡️ Air-Gap Audit](#-air-gap-security-compliance)
+[🚀 Quickstart](#-quickstart--local-launch) • [🏛 Architecture](#-technical-architecture) • [🔐 RBAC & Auditability](#-rbac--cryptographic-auditability) • [🧪 Benchmark Test](#-sih-benchmark-test-case) • [📊 Deliverables](#-deliverables-generated) • [🛡️ Air-Gap Audit](#-air-gap-security-compliance) • [📜 Governance & Compliance](#-governance--compliance)
 
 </div>
 
@@ -29,14 +30,17 @@
 - [Key Features](#-key-features)
 - [Technical Architecture](#-technical-architecture)
 - [Tech Stack](#-tech-stack)
+- [Role-Based Access Control & Cryptographic Auditability](#-rbac--cryptographic-auditability)
 - [Quickstart & Local Launch](#-quickstart--local-launch)
-  - [Method 1: 1-Click Launch in VS Code](#method-1-1-click-launch-in-vs-code-recommended)
-  - [Method 2: Manual Terminal Launch](#method-2-manual-terminal-launch)
-  - [Method 3: Single PowerShell Command](#method-3-single-powershell-command)
-  - [Method 4: Docker Compose Stack](#method-4-docker-compose-stack)
+  - [Method 1: Native Launcher Scripts (Linux/macOS bash & Windows PowerShell)](#method-1-native-launcher-scripts)
+  - [Method 2: 1-Click Launch in VS Code](#method-2-1-click-launch-in-vs-code-recommended)
+  - [Method 3: Manual Terminal Launch](#method-3-manual-terminal-launch)
+  - [Method 4: Docker Compose Stack (CPU & GPU)](#method-4-docker-compose-stack-cpu--gpu)
+- [Continuous Integration & Testing](#-continuous-integration--testing)
 - [SIH Benchmark Test Case](#-sih-benchmark-test-case)
 - [Deliverables Generated](#-deliverables-generated)
 - [Air-Gap Security Compliance](#-air-gap-security-compliance)
+- [Governance & Compliance Documents](#-governance--compliance)
 - [Directory Structure](#-repository-structure)
 - [Team Information](#-team-information)
 
@@ -70,6 +74,8 @@ Public cloud AI solutions risk severe data leakage and breach regulatory boundar
 ## 🔥 Key Features
 
 - 🛡️ **100% Air-Gapped Security**: Zero external network calls (`external_requests = 0`). Data never leaves your premises.
+- 🔑 **Role-Based Access Control (RBAC)**: Fine-grained permissions for `ADMIN`, `ENGINEER`, and `AUDITOR` roles with JWT authentication.
+- ⛓️ **Tamper-Evident SHA-256 Audit Trail**: Hash-chained audit logging ensuring non-repudiation and cryptographic integrity verification (`/api/audit/log`, `/api/audit/verify`).
 - ⚡ **Automated Upload Trigger & Analysis**: Drag & drop any PDF, DOCX, CSV, or P&ID image — the workbench automatically parses, indexes, and triggers AI agent analysis immediately.
 - 🔍 **Deep Uploaded Chunk Inspector**: View exact extracted text passages, relevance scores, extracted numbers, and equipment tags per chunk.
 - 🤖 **Model & Tool Router**: Intelligent task router directing tasks to specialized local models (`Qwen2.5-Coder`, `Mistral-7B`, `Qwen-VL`).
@@ -102,6 +108,7 @@ Public cloud AI solutions risk severe data leakage and breach regulatory boundar
 |                                                              |  - Local Vector RAG             |  |
 |                                                              |  - OCR & Image Parser           |  |
 |                                                              |  - Scoped Python Sandbox        |  |
+|                                                              |  - Cryptographic Audit Engine   |  |
 |                                                              |  - Office Doc Generators        |  |
 |                                                              +---------------------------------+  |
 +---------------------------------------------------------------------------------------------------+
@@ -109,10 +116,28 @@ Public cloud AI solutions risk severe data leakage and breach regulatory boundar
 
 ---
 
+## 🔐 RBAC & Cryptographic Auditability
+
+### Role-Based Access Control (RBAC)
+- **`ADMIN`**: Full platform control, environment bootstrap (`backend/init_workbench.py`), user management, model configuration, and audit verification.
+- **`ENGINEER`**: Document ingestion, RAG querying, workflow execution, deliverable generation, and sandbox code execution.
+- **`AUDITOR`**: Read-only access to pipeline logs, verification metrics, air-gap compliance reports, and audit trail verification endpoints.
+
+### Hash-Chained Cryptographic Audit Logging
+All platform operations (file uploads, sandbox executions, model inferences, deliverable downloads) write to `backend/audit.py`. Each log entry computes:
+$$\text{Hash}_n = \text{SHA256}(\text{Hash}_{n-1} \parallel \text{Timestamp} \parallel \text{User} \parallel \text{Role} \parallel \text{Action} \parallel \text{PayloadHash})$$
+
+Endpoints:
+- `POST /api/audit/log`: Record action to cryptographic audit ledger.
+- `GET /api/audit/verify`: Verify the full SHA-256 hash chain to detect any tampering or log mutation.
+
+---
+
 ## 💻 Tech Stack
 
 - **Frontend**: Next.js 14, React 19, Tailwind CSS, Lucide React Icons
-- **Backend**: Python 3.14, FastAPI, Uvicorn, Pydantic v2
+- **Backend**: Python 3.10+, FastAPI, Uvicorn, Pydantic v2
+- **Access Control & Audit**: PyJWT authentication (`backend/auth.py`), Cryptographic Hash Chaining (`backend/audit.py`)
 - **RAG & Vector Search**: Local Vector Store (`LocalVectorStore`), PyPDF, Document Chunking Engine
 - **OCR Engine**: PyTesseract / PIL local image parser
 - **Code Execution**: Scoped Python Execution Sandbox (`ScopedPythonSandbox`)
@@ -126,17 +151,41 @@ Public cloud AI solutions risk severe data leakage and breach regulatory boundar
 ### Prerequisites
 - Python 3.10+
 - Node.js v18+
+- (Optional) Docker & Docker Compose for containerized deployment
+- (Optional) NVIDIA GPU + NVIDIA Container Toolkit for GPU acceleration
 
 ---
 
-### Method 1: 1-Click Launch in VS Code (Recommended)
+### Method 1: Native Launcher Scripts
+
+#### Linux / macOS Bash Launcher:
+```bash
+chmod +x launch.sh
+./launch.sh
+```
+
+#### Windows PowerShell Launcher:
+```powershell
+.\launch.ps1
+```
+*The launcher checks environment variables, installs backend/frontend dependencies, runs bootstrap setup, and launches both services simultaneously.*
+
+---
+
+### Method 2: 1-Click Launch in VS Code (Recommended)
 1. Open VS Code in the project root directory.
 2. Press `Ctrl + Shift + P` (or `F1`).
 3. Type **`Tasks: Run Task`** and select **`🚀 Start Full Sovereign AI Workbench (Both)`**.
 
 ---
 
-### Method 2: Manual Terminal Launch
+### Method 3: Manual Terminal Launch
+
+#### 1. Bootstrap Setup:
+```bash
+cd backend
+python init_workbench.py
+```
 
 #### Terminal 1 — Start FastAPI Backend:
 ```bash
@@ -154,26 +203,35 @@ npm run dev
 
 ---
 
-### Method 3: Automated Testing & Verification
+### Method 4: Docker Compose Stack (CPU & GPU)
 
-#### Automated End-to-End Smoke Test:
+#### CPU Deployment:
 ```bash
-cd backend
-python tests/smoke_test.py
+docker-compose up --build -d
 ```
 
-#### Run Pipeline Unit Tests:
+#### GPU Accelerated Deployment:
 ```bash
-cd backend
-python -m unittest tests/test_pipeline.py
+docker-compose -f docker-compose.yml -f docker-compose.gpu.yml up --build -d
 ```
 
 ---
 
-### Method 4: Docker Compose Stack
+## 🧪 Continuous Integration & Testing
 
+The repository features automated CI workflows via GitHub Actions (`.github/workflows/ci.yml`):
+
+### Automated Unit Test Suite:
 ```bash
-docker-compose up --build -d
+cd backend
+python -m unittest tests/test_pipeline.py
+```
+*Tests cover Task Analyzer, Model Router, Verification Matrix, Sandbox Escape Blocked, RBAC Role Enforcement, and Audit Trail Hash Chain Integrity.*
+
+### End-to-End Smoke Test:
+```bash
+cd backend
+python tests/smoke_test.py
 ```
 
 ---
@@ -211,7 +269,19 @@ Cloud Data Leakage: 0 BYTES
 External API / Network Requests: 0
 Local Vector Store Grounding: ON-PREMISE ONLY
 Data Boundary: INSIDE ENTERPRISE PERIMETER
+Cryptographic Audit Trail: VERIFIED SHA-256 HASH CHAIN
 ```
+
+---
+
+## 📜 Governance & Compliance
+
+- **[LICENSE](LICENSE)** — MIT License
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** — Developer setup, coding standards, and PR guidelines
+- **[SECURITY.md](SECURITY.md)** — Responsible vulnerability disclosure policy and security controls
+- **[THREAT_MODEL.md](THREAT_MODEL.md)** — STRIDE threat analysis, trust boundaries, and mitigation matrix
+- **[ROADMAP.md](ROADMAP.md)** — Platform milestones, release phases, and future capabilities
+- **[ACKNOWLEDGMENTS.md](ACKNOWLEDGMENTS.md)** — Credits for open-source frameworks and libraries
 
 ---
 
@@ -219,9 +289,15 @@ Data Boundary: INSIDE ENTERPRISE PERIMETER
 
 ```
 sovereign-ai-workbench/
+├── .github/
+│   └── workflows/
+│       └── ci.yml                  # GitHub Actions CI workflow
 ├── backend/
-│   ├── main.py                     # FastAPI app entry point & routes
-│   ├── config.py                   # Air-gap settings, model routing config
+│   ├── main.py                     # FastAPI app entry point & API routes
+│   ├── config.py                   # Air-gap settings & configuration
+│   ├── auth.py                     # RBAC (ADMIN, ENGINEER, AUDITOR) & JWT
+│   ├── audit.py                    # SHA-256 Hash-Chained Cryptographic Audit
+│   ├── init_workbench.py           # Workbench initialization script
 │   ├── agent/                      # Plan-Act-Observe-Verify agentic loop
 │   │   ├── state.py
 │   │   ├── planner.py
@@ -232,14 +308,27 @@ sovereign-ai-workbench/
 │   ├── rag/                        # On-premise vector store & OCR parser
 │   ├── tools/                      # Scoped python sandbox & doc generators
 │   │   └── doc_generators/        # docx, xlsx, pptx builders
+│   ├── tests/                      # Unit tests & smoke tests
+│   │   ├── test_pipeline.py
+│   │   └── smoke_test.py
 │   └── sample_data/                # Preloaded MRPL SOPs & inspection reports
 ├── frontend/                       # Next.js 14 User Workspace App
 │   ├── app/                        # Main dashboard & layout
 │   └── components/                 # Header, Chat, Reasoning Trace, Deliverables Vault
-├── .vscode/                        # VS Code 1-click launch tasks
-├── docker-compose.yml              # Single-command docker composition
+├── .gitleaks.toml                  # Secret-scanning configuration
+├── .env.example                    # Environment variable template
+├── launch.sh                       # Linux / macOS bash launcher
+├── launch.ps1                      # Windows PowerShell launcher
+├── docker-compose.yml              # CPU Docker compose configuration
+├── docker-compose.gpu.yml          # GPU acceleration Docker compose override
 ├── Dockerfile.backend              # Backend Docker container
 ├── Dockerfile.frontend             # Frontend Docker container
+├── LICENSE                         # MIT License
+├── CONTRIBUTING.md                 # Contribution guidelines
+├── SECURITY.md                      # Security disclosure policy
+├── THREAT_MODEL.md                 # STRIDE threat model & mitigations
+├── ROADMAP.md                      # Product roadmap & milestones
+├── ACKNOWLEDGMENTS.md              # Open source credits
 └── README.md                       # Project documentation
 ```
 
@@ -252,3 +341,4 @@ sovereign-ai-workbench/
 - **Team Name:** Zero Latency
 - **Team ID:** 934567100
 - **Repository Link:** [https://github.com/himanshuchahar06/Offline-AI-workflow](https://github.com/himanshuchahar06/Offline-AI-workflow)
+

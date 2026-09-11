@@ -17,6 +17,8 @@ from rag.document_loader import DocumentLoader
 from rag.ocr_engine import OCREngine
 from agent.execution_loop import AgentExecutionLoop
 from llm.ollama_client import OllamaClient
+from auth import authenticate_user, create_token, UserCredentials, UserProfile, get_current_user, require_role
+from audit import AuditLogger
 
 HISTORY_FILE = DELIVERABLES_DIR / "analysis_history.json"
 
@@ -90,17 +92,31 @@ def read_root():
         "external_network_requests": 0
     }
 
-@app.get("/api/health/airgap")
-def get_airgap_health():
-    ollama_online = OllamaClient.is_available()
+@app.post("/api/auth/login")
+def login(creds: UserCredentials):
+    user = authenticate_user(creds.username, creds.password)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid username or password.")
+    token = create_token(user)
+    AuditLogger.log_action(actor=user.username, role=user.role, action="USER_LOGIN")
     return {
-        "air_gap_status": "SECURE",
-        "cloud_data_leakage": "ZERO BYTES",
-        "external_api_calls_count": 0,
-        "local_ollama_engine": "ONLINE" if ollama_online else "OFFLINE (Using Autonomous Local CPU Fallback)",
-        "active_knowledge_docs": len(global_vector_store.documents),
-        "deliverables_storage": str(DELIVERABLES_DIR)
+        "access_token": token,
+        "token_type": "bearer",
+        "username": user.username,
+        "role": user.role
     }
+
+@app.get("/api/audit/log")
+def get_audit_log(user: UserProfile = Depends(require_role(["ADMIN", "AUDITOR"]))):
+    return {
+        "status": "success",
+        "integrity": AuditLogger.verify_integrity(),
+        "entries": AuditLogger._load_log()
+    }
+
+@app.get("/api/audit/verify")
+def verify_audit_log():
+    return AuditLogger.verify_integrity()
 
 @app.post("/api/chat")
 def process_chat(req: ChatRequest):
@@ -122,6 +138,12 @@ def process_chat(req: ChatRequest):
         "python_sandbox_result": agent_state.python_sandbox_result
     }
     save_analysis_history(res_data)
+    AuditLogger.log_action(
+        actor="local_operator",
+        role="ENGINEER",
+        action="EXECUTE_AGENT_PIPELINE",
+        metadata={"session_id": session_id, "task_type": agent_state.task_type, "deliverables_count": len(agent_state.deliverables)}
+    )
     return res_data
 
 @app.post("/api/stream/analyze")
@@ -129,6 +151,13 @@ def stream_analysis(req: ChatRequest):
     session_id = req.session_id or str(uuid.uuid4())
     if not req.prompt.strip():
         raise HTTPException(status_code=400, detail="Prompt cannot be empty.")
+
+    AuditLogger.log_action(
+        actor="local_operator",
+        role="ENGINEER",
+        action="STREAM_AGENT_PIPELINE",
+        metadata={"session_id": session_id, "prompt_preview": req.prompt[:60]}
+    )
 
     return StreamingResponse(
         agent_loop.run_agent_stream(session_id, req.prompt),
@@ -175,6 +204,13 @@ async def upload_document(file: UploadFile = File(...)):
             "python_sandbox_result": agent_state.python_sandbox_result
         }
         save_analysis_history(res_data)
+
+        AuditLogger.log_action(
+            actor="local_operator",
+            role="ENGINEER",
+            action="FILE_UPLOAD_AND_ANALYZE",
+            metadata={"filename": file.filename, "chunks_added": chunks_added, "session_id": session_id}
+        )
 
         return {
             "status": "success",

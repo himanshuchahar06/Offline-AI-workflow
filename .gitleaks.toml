@@ -1,0 +1,19 @@
+# Gitleaks Secret Scanning Configuration
+title = "Sovereign AI Workbench Gitleaks Config"
+
+[allowlist]
+description = "Allow dummy example secrets in tests or configs"
+regexes = [
+    '''dummy-jwt-secret-key-change-in-production''',
+    '''00000000-0000-0000-0000-000000000000''',
+]
+
+[[rules]]
+description = "Generic Private Key"
+regex = '''-----BEGIN[ A-Z0-9_-]+PRIVATE KEY-----'''
+tags = ["key", "private-key"]
+
+[[rules]]
+description = "Generic API Key"
+regex = '''(?i)(api_key|apikey|secret_key|private_key|token)[\s]*[=:][\s]*['"]([a-zA-Z0-9_\-]{16,})['"]'''
+tags = ["key", "api-key"]

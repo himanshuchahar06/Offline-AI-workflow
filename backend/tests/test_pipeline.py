@@ -79,5 +79,44 @@ class TestSovereignPipeline(unittest.TestCase):
         self.assertEqual(res2["status"], "error")
         self.assertIn("NameError", res2["error"] + res2.get("traceback", ""))
 
+    def test_rbac_enforcement(self):
+        """Test Role-Based Access Control (RBAC) permission logic."""
+        from auth import authenticate_user, require_role, UserProfile
+        from fastapi import HTTPException
+
+        admin_user = authenticate_user("admin", "admin123")
+        self.assertIsNotNone(admin_user)
+        self.assertEqual(admin_user.role, "ADMIN")
+
+        auditor_user = authenticate_user("auditor", "audit123")
+        self.assertIsNotNone(auditor_user)
+        self.assertEqual(auditor_user.role, "AUDITOR")
+
+        # Test role requirement checker
+        admin_checker = require_role(["ADMIN"])
+        self.assertEqual(admin_checker(admin_user).role, "ADMIN")
+
+        # Check denial for unprivileged role
+        auditor_checker = require_role(["ADMIN"])
+        with self.assertRaises(HTTPException) as ctx:
+            auditor_checker(auditor_user)
+        self.assertEqual(ctx.exception.status_code, 403)
+
+    def test_audit_log_hash_chain_integrity(self):
+        """Test cryptographic SHA-256 hash-chained audit log creation and integrity verification."""
+        from audit import AuditLogger, AuditLogEntry
+
+        # Log sample actions
+        e1 = AuditLogger.log_action(actor="test_eng", role="ENGINEER", action="TEST_EXECUTE_1", metadata={"item": 1})
+        e2 = AuditLogger.log_action(actor="test_aud", role="AUDITOR", action="TEST_EXECUTE_2", metadata={"item": 2})
+
+        self.assertIsNotNone(e1.get("hash"))
+        self.assertEqual(e2.get("previous_hash"), e1.get("hash"))
+
+        # Verify integrity check returns VALID
+        integrity = AuditLogger.verify_integrity()
+        self.assertEqual(integrity["status"], "VALID")
+        self.assertGreaterEqual(integrity["entries_verified"], 2)
+
 if __name__ == "__main__":
     unittest.main()

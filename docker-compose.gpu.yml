@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  backend:
+    environment:
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - DEFAULT_MODEL=qwen2.5-coder:7b
+      - CUDA_VISIBLE_DEVICES=0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
