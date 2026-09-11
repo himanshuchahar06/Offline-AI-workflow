@@ -47,73 +47,79 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-slate-950">
-      {/* 1. Top Header & Security Status */}
-      <WorkspaceHeader />
+    <div className="min-h-screen bg-slate-950 bg-grid-cyber text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-slate-950 relative overflow-x-hidden">
+      {/* Background Ambient Radial Orbs */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-radial-glow pointer-events-none z-0"></div>
 
-      {/* Main Content Dashboard */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
-        
-        {/* 2. Hero / Command Center */}
-        <HeroCommandCenter onExecutePrompt={handleExecutePrompt} isLoading={isLoading} />
+      <div className="relative z-10 flex flex-col min-h-screen">
+        {/* 1. Top Header & Security Status */}
+        <WorkspaceHeader />
 
-        {/* 3. Security Center Panel */}
-        <SecurityCenterPanel />
+        {/* Main Content Dashboard */}
+        <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-7">
+          
+          {/* 2. Hero / Command Center */}
+          <HeroCommandCenter onExecutePrompt={handleExecutePrompt} isLoading={isLoading} />
 
-        {/* 4. Document Knowledge Category Grid (8 Asset Cards) */}
-        <DocumentCategoryGrid onSelectCategory={(cat) => handleExecutePrompt(`Analyze confidential assets in ${cat}`)} />
+          {/* 3. Security Center Panel */}
+          <SecurityCenterPanel />
 
-        {/* 5. Autonomous Local AI Agents Panel */}
-        <AIAgentsPanel />
+          {/* 4. Document Knowledge Category Grid (8 Asset Cards) */}
+          <DocumentCategoryGrid onSelectCategory={(cat) => handleExecutePrompt(`Analyze confidential assets in ${cat}`)} />
 
-        {/* 6. Execution Panel & RAG Manager */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <ChatInterface onExecutePrompt={handleExecutePrompt} isLoading={isLoading} />
+          {/* 5. Autonomous Local AI Agents Panel */}
+          <AIAgentsPanel />
+
+          {/* 6. Execution Panel & RAG Manager */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <ChatInterface onExecutePrompt={handleExecutePrompt} isLoading={isLoading} />
+            </div>
+            <div>
+              <KnowledgeRAGManager onAnalyzeFile={handleAnalyzeFile} />
+            </div>
           </div>
-          <div>
-            <KnowledgeRAGManager onAnalyzeFile={handleAnalyzeFile} />
+
+          {/* 7. Live Agent Reasoning Timeline & Verification */}
+          {agentData && (
+            <AgentReasoningTrace
+              taskType={agentData.task_type}
+              modelRouted={agentData.model_routed}
+              planSteps={agentData.plan_steps}
+              verificationStatus={agentData.verification_status}
+            />
+          )}
+
+          {/* 8. Deep Uploaded Chunk Inspector */}
+          {agentData && agentData.plan_steps && (
+            <ChunkAnalysisViewer chunks={agentData.rag_context || []} />
+          )}
+
+          {/* 9. Python Sandbox Execution Console */}
+          {agentData && agentData.python_sandbox_result && (
+            <SandboxConsole pythonResult={agentData.python_sandbox_result} />
+          )}
+
+          {/* 10. Real Office Deliverables Vault (.docx, .xlsx, .pptx) */}
+          {agentData && (
+            <DeliverablesVault
+              deliverables={agentData.deliverables}
+              finalResponse={agentData.final_response}
+            />
+          )}
+        </main>
+
+        {/* Footer */}
+        <footer className="border-t border-slate-900/90 bg-slate-950/90 backdrop-blur-xl py-5 px-6 text-center text-xs text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-3 mt-10">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+            <span>ODIN Sovereign On-Premise Agentic AI Workbench | SIH 2026 Problem SIH26117</span>
           </div>
-        </div>
-
-        {/* 7. Live Agent Reasoning Timeline & Verification */}
-        {agentData && (
-          <AgentReasoningTrace
-            taskType={agentData.task_type}
-            modelRouted={agentData.model_routed}
-            planSteps={agentData.plan_steps}
-            verificationStatus={agentData.verification_status}
-          />
-        )}
-
-        {/* 8. Deep Uploaded Chunk Inspector */}
-        {agentData && agentData.plan_steps && (
-          <ChunkAnalysisViewer chunks={agentData.rag_context || []} />
-        )}
-
-        {/* 9. Python Sandbox Execution Console */}
-        {agentData && agentData.python_sandbox_result && (
-          <SandboxConsole pythonResult={agentData.python_sandbox_result} />
-        )}
-
-        {/* 10. Real Office Deliverables Vault (.docx, .xlsx, .pptx) */}
-        {agentData && (
-          <DeliverablesVault
-            deliverables={agentData.deliverables}
-            finalResponse={agentData.final_response}
-          />
-        )}
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t border-slate-900 bg-slate-950 py-4 px-6 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
-        <div>
-          ODIN Sovereign On-Premise Agentic AI Workbench | SIH 2026 Problem SIH26117
-        </div>
-        <div className="text-amber-400 font-semibold">
-          MRPL Mangalore Refinery & Petrochemicals Limited | Team Zero Latency (934567100)
-        </div>
-      </footer>
+          <div className="text-amber-400 font-bold tracking-wide">
+            MRPL Mangalore Refinery & Petrochemicals Limited | Team Zero Latency (934567100)
+          </div>
+        </footer>
+      </div>
     </div>
   );
 }
