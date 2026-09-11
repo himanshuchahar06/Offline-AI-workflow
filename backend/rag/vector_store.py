@@ -1,11 +1,36 @@
 import math
 import re
+import json
+from pathlib import Path
+from config import UPLOADS_DIR
+
+MEMORY_FILE = UPLOADS_DIR / "vector_memory.json"
 
 class LocalVectorStore:
-    """Local, air-gapped vector store and retriever for confidential refinery knowledge bases."""
+    """Persistent local air-gapped vector store & decision memory for confidential refinery knowledge bases."""
 
     def __init__(self):
         self.documents = []  # Stores dicts with {id, title, content, chunks, category}
+        self.load_from_disk()
+
+    def save_to_disk(self):
+        """Persist vector store memory to local disk JSON file."""
+        try:
+            with open(MEMORY_FILE, "w", encoding="utf-8") as f:
+                json.dump(self.documents, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            print(f"Error saving vector memory to disk: {e}")
+
+    def load_from_disk(self):
+        """Load persistent vector store memory from local disk JSON file."""
+        if MEMORY_FILE.exists():
+            try:
+                with open(MEMORY_FILE, "r", encoding="utf-8") as f:
+                    self.documents = json.load(f)
+                print(f"Loaded {len(self.documents)} documents from persistent vector memory ({MEMORY_FILE.name}).")
+            except Exception as e:
+                print(f"Error loading vector memory from disk: {e}")
+                self.documents = []
 
     def add_document(self, doc_id: str, title: str, content: str, category: str = "General") -> int:
         words = re.findall(r'\w+', content.lower())
@@ -26,10 +51,19 @@ class LocalVectorStore:
             "chunks": chunks,
             "category": category
         }
-        self.documents.append(doc_entry)
+
+        # Update existing document if doc_id matches, else append
+        existing_idx = next((i for i, d in enumerate(self.documents) if d["id"] == doc_id), None)
+        if existing_idx is not None:
+            self.documents[existing_idx] = doc_entry
+        else:
+            self.documents.append(doc_entry)
+
+        # Persist memory to disk immediately
+        self.save_to_disk()
         return len(chunks)
 
-    def search(self, query: str, top_k: int = 4) -> list[dict]:
+    def search(self, query: str, top_k: int = 6) -> list[dict]:
         if not self.documents:
             return []
 
@@ -44,12 +78,16 @@ class LocalVectorStore:
                 intersection = query_terms.intersection(chunk_terms)
                 score = len(intersection) / (math.sqrt(len(query_terms)) * math.sqrt(len(chunk_terms)) + 1e-5)
                 
-                # Bonus for exact keyword matches like P&ID, SOP, Hydrocracker, Corrosion
+                # Bonus for exact keyword matches
                 for term in query_terms:
                     if len(term) > 3 and term in chunk.lower():
                         score += 0.15
 
-                if score > 0.05:
+                # Give high weight if document matches requested file name or recent user upload
+                if doc["id"].lower() in query.lower() or doc["title"].lower() in query.lower():
+                    score += 0.40
+
+                if score > 0.05 or len(results) < top_k:
                     results.append({
                         "doc_id": doc["id"],
                         "title": doc["title"],
