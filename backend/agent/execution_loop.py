@@ -402,8 +402,6 @@ class AgentExecutionLoop:
             f"| Python Sandbox Calculations | **VERIFIED** | **HIGH (95%)** | Scoped Execution Sandbox |\n"
             f"| Air-Gap Security Audit | **VERIFIED** | **HIGH (100%)** | 0 External Network Requests |\n\n"
             f"---\n\n"
-            f"### 🧪 Scoped Sandbox Output\n"
-            f"```text\n{sandbox_output.strip()}\n```\n\n"
             f"### 📁 Generated Office Deliverables\n"
             f"1. **Word Technical Report (.docx):** `MRPL_{state.task_type.upper()}_{state.session_id[:6]}_Report.docx`\n"
             f"2. **Excel Calculation Workbook (.xlsx):** `MRPL_{state.task_type.upper()}_{state.session_id[:6]}_Calculations.xlsx`\n"

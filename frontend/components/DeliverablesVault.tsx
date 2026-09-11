@@ -42,7 +42,7 @@ export default function DeliverablesVault({ deliverables, finalResponse }: Deliv
           <Sparkles className="w-5 h-5 text-emerald-400 animate-bounce" />
           <div>
             <h3 className="font-extrabold text-slate-100 text-sm tracking-wide uppercase">
-              MRPL Sovereign Deliverables Vault & Analysis Report
+              Executive Office Deliverables Vault
             </h3>
             <p className="text-xs text-slate-400">Verified Binary Word, Excel & PowerPoint File Outputs</p>
           </div>
@@ -200,22 +200,6 @@ export default function DeliverablesVault({ deliverables, finalResponse }: Deliv
           </div>
         )}
       </div>
-
-      {/* Comprehensive Report Viewer Box */}
-      {finalResponse && (
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
-            <span className="flex items-center gap-1.5 text-slate-200">
-              <Eye className="w-4 h-4 text-cyan-400" /> Full Analysis & Executive Deliverables Summary
-            </span>
-            <span className="text-emerald-400 font-mono">SAVED TO MEMORY DISK</span>
-          </div>
-
-          <div className="bg-slate-950 p-5 rounded-xl border border-slate-800 font-sans text-xs text-slate-300 leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto shadow-inner">
-            {finalResponse}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
