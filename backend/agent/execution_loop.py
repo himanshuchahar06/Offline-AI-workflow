@@ -1,6 +1,7 @@
 import os
 import time
 import re
+import json
 from pathlib import Path
 from agent.state import AgentState
 from agent.planner import AgentPlanner
@@ -91,6 +92,122 @@ class AgentExecutionLoop:
         # Final re-verify including deliverables
         state.verification_status = VerificationEngine.verify_agent_execution(state.model_dump())
         return state
+
+    def run_agent_stream(self, session_id: str, prompt: str):
+        """Generator function yielding SSE events for live 9-stage pipeline animation."""
+        state = AgentPlanner.create_plan(session_id, prompt)
+
+        for idx, step in enumerate(state.plan_steps):
+            step_start = time.time()
+            step.status = "in_progress"
+            step.timestamp = time.strftime("%H:%M:%S")
+            route_info = ModelAndToolRouter.route_step(step.action, state.task_type)
+
+            # Emit stage started event
+            start_event = {
+                "session_id": session_id,
+                "stage_id": step.step_id,
+                "stage_name": step.action,
+                "status": "in_progress",
+                "input_summary": prompt[:80],
+                "output_summary": f"Executing {step.action}...",
+                "timing_ms": 0.0,
+                "confidence": 1.0,
+                "model_routed": route_info.get("model", state.model_routed),
+                "details": {"route": route_info},
+                "timestamp": step.timestamp
+            }
+            yield f"data: {json.dumps(start_event)}\n\n"
+
+            # Execute step logic
+            if "Local Tools" in step.action:
+                search_res = self.vector_store.search(prompt, top_k=6)
+                analyzed_chunks = []
+                for chunk_item in search_res:
+                    c_text = chunk_item.get("content", "")
+                    numbers_found = re.findall(r'\b\d+(?:\.\d+)?\b', c_text)
+                    units_found = re.findall(r'\b(?:mm|bar|°C|kg|m3|m/s|INR|USD|years|months|yrs)\b', c_text, re.IGNORECASE)
+                    tags_found = re.findall(r'\b[A-Z]{1,3}-\d{2,4}[A-Z]?\b', c_text)
+
+                    chunk_item["extracted_metrics"] = {
+                        "numbers": numbers_found[:5],
+                        "units": list(set(units_found)),
+                        "equipment_tags": list(set(tags_found))
+                    }
+                    analyzed_chunks.append(chunk_item)
+
+                state.rag_context = analyzed_chunks
+                script = LocalReasoningEngine.generate_python_calculation(prompt)
+                sandbox_res = ScopedPythonSandbox.execute(script)
+                state.python_sandbox_result = sandbox_res
+                step.status = "completed"
+                step.details = {"matches_found": len(analyzed_chunks), "sandbox": sandbox_res.get("status")}
+
+            elif "Multimodal" in step.action:
+                upload_images = list(UPLOADS_DIR.glob("*.jpg")) + list(UPLOADS_DIR.glob("*.png")) + list(UPLOADS_DIR.glob("*.jpeg"))
+                target_img = str(upload_images[-1]) if upload_images else "sample_inspection_vessel_101.jpg"
+                ocr_res = OCRTool.run(target_img)
+                state.ocr_results = ocr_res
+                step.status = "completed"
+                step.details = {"ocr_status": ocr_res.get("status"), "file": Path(target_img).name}
+
+            elif "Verification" in step.action:
+                audit_res = VerificationEngine.verify_agent_execution(state.model_dump())
+                state.verification_status = audit_res
+                step.status = "verified" if audit_res["status"] == "PASSED" else "completed"
+                step.details = audit_res
+
+            elif "Deliverable" in step.action:
+                deliverables = self._generate_office_deliverables(session_id, prompt, state)
+                state.deliverables = deliverables
+                step.status = "completed"
+                step.details = {"files_created": list(deliverables.keys())}
+
+            else:
+                step.status = "completed"
+                step.details = {"route": route_info}
+
+            timing = round((time.time() - step_start) * 1000, 2)
+            
+            # Emit stage completed event
+            done_event = {
+                "session_id": session_id,
+                "stage_id": step.step_id,
+                "stage_name": step.action,
+                "status": step.status,
+                "input_summary": prompt[:80],
+                "output_summary": f"Completed {step.action} successfully.",
+                "timing_ms": timing,
+                "confidence": 0.98 if step.status in ["completed", "verified"] else 0.85,
+                "model_routed": route_info.get("model", state.model_routed),
+                "details": step.details or {},
+                "timestamp": time.strftime("%H:%M:%S")
+            }
+            yield f"data: {json.dumps(done_event)}\n\n"
+
+        # Final complete event
+        state.final_response = self._synthesize_final_response(prompt, state)
+        state.verification_status = VerificationEngine.verify_agent_execution(state.model_dump())
+        
+        final_event = {
+            "session_id": session_id,
+            "stage_id": 10,
+            "stage_name": "Pipeline Complete",
+            "status": "finished",
+            "input_summary": prompt[:80],
+            "output_summary": state.final_response[:200],
+            "timing_ms": 0.0,
+            "confidence": 1.0,
+            "model_routed": state.model_routed,
+            "details": {
+                "final_response": state.final_response,
+                "verification_status": state.verification_status,
+                "deliverables": state.deliverables
+            },
+            "timestamp": time.strftime("%H:%M:%S")
+        }
+        yield f"data: {json.dumps(final_event)}\n\n"
+
 
     def _generate_office_deliverables(self, session_id: str, prompt: str, state: AgentState) -> dict:
         prefix = f"MRPL_{state.task_type.upper()}_{session_id[:6]}"

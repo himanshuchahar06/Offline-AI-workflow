@@ -5,7 +5,7 @@ import asyncio
 from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from pydantic import BaseModel
 
 from config import (
@@ -123,6 +123,17 @@ def process_chat(req: ChatRequest):
     }
     save_analysis_history(res_data)
     return res_data
+
+@app.post("/api/stream/analyze")
+def stream_analysis(req: ChatRequest):
+    session_id = req.session_id or str(uuid.uuid4())
+    if not req.prompt.strip():
+        raise HTTPException(status_code=400, detail="Prompt cannot be empty.")
+
+    return StreamingResponse(
+        agent_loop.run_agent_stream(session_id, req.prompt),
+        media_type="text/event-stream"
+    )
 
 @app.post("/api/rag/upload")
 async def upload_document(file: UploadFile = File(...)):
