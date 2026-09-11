@@ -36,9 +36,14 @@ export default function Home() {
     }
   };
 
-  const handleAnalyzeFile = (filename: string) => {
-    const customPrompt = `Perform technical analysis on uploaded file '${filename}', run calculations in sandbox, and generate Word report, Excel sheet, and PowerPoint presentation deck.`;
-    handleExecutePrompt(customPrompt);
+  const handleAnalyzeFile = (filename: string, returnedAgentData?: any) => {
+    if (returnedAgentData) {
+      setAgentData(returnedAgentData);
+      setIsLoading(false);
+    } else {
+      const customPrompt = `Perform technical analysis on uploaded file '${filename}', run calculations in sandbox, and generate Word report, Excel sheet, and PowerPoint presentation deck.`;
+      handleExecutePrompt(customPrompt);
+    }
   };
 
   return (

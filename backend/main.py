@@ -121,11 +121,27 @@ async def upload_document(file: UploadFile = File(...)):
             content=text_content,
             category="User Upload"
         )
+        # Run AI Agent Execution immediately on newly uploaded file!
+        session_id = str(uuid.uuid4())
+        upload_prompt = f"Perform complete technical analysis on uploaded file '{file.filename}', run calculations in sandbox, and generate Word report, Excel sheet, and PowerPoint presentation deck."
+        agent_state = agent_loop.run_agent(session_id, upload_prompt)
+
         return {
             "status": "success",
             "filename": file.filename,
             "chunks_indexed": chunks_added,
-            "total_documents": len(global_vector_store.documents)
+            "total_documents": len(global_vector_store.documents),
+            "agent_data": {
+                "session_id": session_id,
+                "task_type": agent_state.task_type,
+                "model_routed": agent_state.model_routed,
+                "plan_steps": [s.model_dump() for s in agent_state.plan_steps],
+                "final_response": agent_state.final_response,
+                "verification_status": agent_state.verification_status,
+                "deliverables": agent_state.deliverables,
+                "rag_context": agent_state.rag_context,
+                "python_sandbox_result": agent_state.python_sandbox_result
+            }
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to process document: {str(e)}")

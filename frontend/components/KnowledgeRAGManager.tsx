@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Database, Upload, FileText, CheckCircle, RefreshCw, Zap, Image as ImageIcon } from "lucide-react";
+import { Database, Upload, FileText, CheckCircle, RefreshCw, Zap, Image as ImageIcon, Sparkles } from "lucide-react";
 
 interface KnowledgeRAGManagerProps {
-  onAnalyzeFile?: (filename: string) => void;
+  onAnalyzeFile?: (filename: string, agentData?: any) => void;
 }
 
 export default function KnowledgeRAGManager({ onAnalyzeFile }: KnowledgeRAGManagerProps) {
@@ -28,7 +28,7 @@ export default function KnowledgeRAGManager({ onAnalyzeFile }: KnowledgeRAGManag
     if (!file) return;
 
     setIsUploading(true);
-    setUploadStatus(`Indexing ${file.name} locally...`);
+    setUploadStatus(`Parsing & Analyzing ${file.name} locally...`);
 
     const formData = new FormData();
     formData.append("file", file);
@@ -40,12 +40,12 @@ export default function KnowledgeRAGManager({ onAnalyzeFile }: KnowledgeRAGManag
       });
       const data = await res.json();
       if (data.status === "success") {
-        setUploadStatus(`Indexed ${data.chunks_indexed} chunks from ${file.name}`);
+        setUploadStatus(`Analyzed ${data.chunks_indexed} chunks from ${file.name}!`);
         fetchDocuments();
         
-        // Automatically trigger AI agent execution on the newly uploaded file!
+        // Pass complete agent_data to parent page so UI updates instantly!
         if (onAnalyzeFile) {
-          onAnalyzeFile(file.name);
+          onAnalyzeFile(file.name, data.agent_data);
         }
       } else {
         setUploadStatus("Upload failed");
@@ -90,8 +90,15 @@ export default function KnowledgeRAGManager({ onAnalyzeFile }: KnowledgeRAGManag
           <input type="file" onChange={handleFileUpload} className="hidden" accept=".pdf,.docx,.txt,.csv,.png,.jpg,.jpeg" />
         </label>
 
-        {uploadStatus && (
-          <div className="mt-2 text-xs text-cyan-400 font-medium flex items-center gap-1.5 justify-center">
+        {isUploading && (
+          <div className="mt-2 text-xs text-amber-400 font-bold flex items-center gap-1.5 justify-center animate-pulse">
+            <Sparkles className="w-3.5 h-3.5 animate-spin text-amber-400" />
+            <span>Parsing & Executing AI Analysis on Uploaded File...</span>
+          </div>
+        )}
+
+        {uploadStatus && !isUploading && (
+          <div className="mt-2 text-xs text-cyan-400 font-bold flex items-center gap-1.5 justify-center">
             <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
             {uploadStatus}
           </div>
