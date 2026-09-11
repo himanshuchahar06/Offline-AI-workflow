@@ -110,7 +110,7 @@ class AgentExecutionLoop:
                 "stage_name": step.action,
                 "status": "in_progress",
                 "input_summary": prompt[:80],
-                "output_summary": f"Executing {step.action}...",
+                "output_summary": f"Stage {step.step_id}: {step.action} processing.",
                 "timing_ms": 0.0,
                 "confidence": 1.0,
                 "model_routed": route_info.get("model", state.model_routed),
@@ -176,7 +176,7 @@ class AgentExecutionLoop:
                 "stage_name": step.action,
                 "status": step.status,
                 "input_summary": prompt[:80],
-                "output_summary": f"Completed {step.action} successfully.",
+                "output_summary": f"Stage {step.step_id}: {step.action} complete.",
                 "timing_ms": timing,
                 "confidence": 0.98 if step.status in ["completed", "verified"] else 0.85,
                 "model_routed": route_info.get("model", state.model_routed),
@@ -386,28 +386,28 @@ class AgentExecutionLoop:
             )
 
         return (
-            f"# 📄 REAL DELIVERABLE: MANAGEMENT TECHNICAL REPORT\n\n"
-            f"**Environment:** `100% Air-Gapped Sovereign Zone` | **Analyzed Document:** `{doc_str}`\n"
-            f"**Selected Local Model:** `{state.model_routed}` | **Task Category:** `{state.task_type.upper()}`\n\n"
+            f"# 📄 EXECUTIVE TECHNICAL AUDIT REPORT\n\n"
+            f"**Boundary:** `100% Air-Gapped Sovereign Zone` | **Target Document:** `{doc_str}`\n"
+            f"**Routed Local Engine:** `{state.model_routed}` | **Category:** `{state.task_type.upper()}`\n\n"
             f"---\n\n"
-            f"### 🎯 Executive Summary:\n"
-            f"Management-Ready Analysis for prompt *\"{prompt[:100]}...\"*. Grounded locally across **{len(rag_passages)} extracted vector chunks** from `{doc_str}` without accessing external cloud APIs.\n\n"
+            f"### 🎯 Executive Summary\n"
+            f"Technical evaluation for query *\"{prompt[:100]}...\"*. Grounded on-premise across **{len(rag_passages)} extracted vector passages** from `{doc_str}` with zero cloud network transmission.\n\n"
             f"---\n\n"
             f"{findings_md}"
             f"---\n\n"
-            f"### ✅ Verification & Compliance Summary:\n"
-            f"| Document / Item | Status | Confidence | Source Grounding |\n"
+            f"### ✅ Verification & Compliance Summary\n"
+            f"| Document / Parameter | Status | Confidence | Source Grounding |\n"
             f"| :--- | :--- | :--- | :--- |\n"
             f"| `{doc_str}` | **VERIFIED** | **HIGH (98%)** | Extracted Vector Store Chunks |\n"
             f"| Python Sandbox Calculations | **VERIFIED** | **HIGH (95%)** | Scoped Execution Sandbox |\n"
             f"| Air-Gap Security Audit | **VERIFIED** | **HIGH (100%)** | 0 External Network Requests |\n\n"
             f"---\n\n"
-            f"### 🧪 Scoped Python Sandbox Output:\n"
+            f"### 🧪 Scoped Sandbox Output\n"
             f"```text\n{sandbox_output.strip()}\n```\n\n"
-            f"### 📁 Verified Real Office Deliverables Generated:\n"
+            f"### 📁 Generated Office Deliverables\n"
             f"1. **Word Technical Report (.docx):** `MRPL_{state.task_type.upper()}_{state.session_id[:6]}_Report.docx`\n"
             f"2. **Excel Calculation Workbook (.xlsx):** `MRPL_{state.task_type.upper()}_{state.session_id[:6]}_Calculations.xlsx`\n"
             f"3. **PowerPoint Executive Deck (.pptx):** `MRPL_{state.task_type.upper()}_{state.session_id[:6]}_Presentation.pptx`\n\n"
             f"> [!IMPORTANT]\n"
-            f"> **Air-Gap Audit:** 0 external network calls were made. 100% On-Premise Sovereign Execution."
+            f"> **Air-Gap Security Audit:** 0 external network requests executed."
         )

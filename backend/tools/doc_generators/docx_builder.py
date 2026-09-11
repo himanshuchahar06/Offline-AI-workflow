@@ -60,7 +60,7 @@ class DOCXDeliverableBuilder:
 
         # Executive Summary Section
         h_exec = doc.add_heading(level=1)
-        r_exec = h_exec.add_run("1. Executive Summary & Plain English Takeaways")
+        r_exec = h_exec.add_run("1. Executive Summary & Key Technical Takeaways")
         r_exec.font.name = "Calibri"
         r_exec.font.size = Pt(16)
         r_exec.font.bold = True
