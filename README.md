@@ -130,7 +130,7 @@ Public cloud AI solutions risk severe data leakage and breach regulatory boundar
 ---
 
 ### Method 1: 1-Click Launch in VS Code (Recommended)
-1. Open VS Code in the project directory: `c:\Users\himan\OneDrive\Desktop\web d files\sovereign-ai-workbench`.
+1. Open VS Code in the project root directory.
 2. Press `Ctrl + Shift + P` (or `F1`).
 3. Type **`Tasks: Run Task`** and select **`🚀 Start Full Sovereign AI Workbench (Both)`**.
 
@@ -139,14 +139,14 @@ Public cloud AI solutions risk severe data leakage and breach regulatory boundar
 ### Method 2: Manual Terminal Launch
 
 #### Terminal 1 — Start FastAPI Backend:
-```powershell
+```bash
 cd backend
 python main.py
 ```
 *(Backend runs at `http://localhost:8000`)*
 
 #### Terminal 2 — Start Next.js Frontend:
-```powershell
+```bash
 cd frontend
 npm run dev
 ```
@@ -154,10 +154,18 @@ npm run dev
 
 ---
 
-### Method 3: Single PowerShell Command
+### Method 3: Automated Testing & Verification
 
-```powershell
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'c:\Users\himan\OneDrive\Desktop\web d files\sovereign-ai-workbench\backend'; python main.py"; cd "c:\Users\himan\OneDrive\Desktop\web d files\sovereign-ai-workbench\frontend"; npm run dev
+#### Automated End-to-End Smoke Test:
+```bash
+cd backend
+python tests/smoke_test.py
+```
+
+#### Run Pipeline Unit Tests:
+```bash
+cd backend
+python -m unittest tests/test_pipeline.py
 ```
 
 ---

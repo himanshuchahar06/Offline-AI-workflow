@@ -65,5 +65,19 @@ class TestSovereignPipeline(unittest.TestCase):
         self.assertIn("airgap_audit", audit)
         self.assertEqual(audit["airgap_audit"]["external_network_requests"], 0)
 
+    def test_sandbox_escape_blocked(self):
+        """Test ScopedPythonSandbox blocks unpermitted host filesystem / OS module imports."""
+        from tools.python_sandbox import ScopedPythonSandbox
+        
+        malicious_code = "import os; files = os.listdir('.')"
+        res = ScopedPythonSandbox.execute(malicious_code)
+        self.assertEqual(res["status"], "error")
+        self.assertTrue("ImportError" in res["error"] or "NameError" in res["error"] or "__import__" in res.get("traceback", ""))
+
+        malicious_file_read = "f = open('config.py', 'r'); text = f.read()"
+        res2 = ScopedPythonSandbox.execute(malicious_file_read)
+        self.assertEqual(res2["status"], "error")
+        self.assertIn("NameError", res2["error"] + res2.get("traceback", ""))
+
 if __name__ == "__main__":
     unittest.main()

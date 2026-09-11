@@ -11,8 +11,7 @@ class ScopedPythonSandbox:
         stdout_capture = io.StringIO()
         stderr_capture = io.StringIO()
 
-        safe_globals = {
-            "math": math,
+        safe_builtins = {
             "abs": abs,
             "min": min,
             "max": max,
@@ -26,6 +25,11 @@ class ScopedPythonSandbox:
             "str": str,
             "round": round,
             "print": lambda *args, **kwargs: print(*args, file=stdout_capture, **kwargs)
+        }
+
+        safe_globals = {
+            "__builtins__": safe_builtins,
+            "math": math
         }
         safe_locals = {}
 
