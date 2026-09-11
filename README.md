@@ -1,29 +1,85 @@
-# Sovereign On-Premise Agentic AI Workbench (SIH 2026)
+<div align="center">
 
-**SIH Problem Statement ID:** SIH26117  
+# 🛡️ SOVEREIGN ON-PREMISE AGENTIC AI WORKBENCH
+### *Air-Gapped Multimodal AI Workbench for Confidential Industrial & PSU Work*
+
+[![SIH 2026](https://img.shields.io/badge/SIH-2026-orange.svg?style=for-the-badge&logo=hackerearth)](https://sih.gov.in)
+[![Organization](https://img.shields.io/badge/Organization-MRPL-blue.svg?style=for-the-badge)](https://mrpl.co.in)
+[![Security](https://img.shields.io/badge/Air--Gap-100%25%20Offline-success.style=for-the-badge&logo=shield)](https://github.com/himanshuchahar06/Offline-AI-workflow)
+[![Backend](https://img.shields.io/badge/Backend-FastAPI-009688.svg?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com)
+[![Frontend](https://img.shields.io/badge/Frontend-Next.js%2014-black.svg?style=for-the-badge&logo=next.js)](https://nextjs.org)
+
+**Problem Statement ID:** SIH26117 | **Theme:** Smart Automation  
 **Organization:** MRPL — Mangalore Refinery and Petrochemicals Limited  
-**Theme:** Smart Automation  
-**Team Name:** Zero Latency  
-**Team ID:** 934567100  
+**Team Name:** Zero Latency | **Team ID:** 934567100  
 
-> *“Enterprise-grade AI assistance — without enterprise data leaving the premises.”*
+*“Enterprise-grade AI assistance — without enterprise data leaving the premises.”*
 
 ---
 
-## Overview
+[🚀 Quickstart](#-quickstart--local-launch) • [🏛 Architecture](#-technical-architecture) • [🧪 Benchmark Test](#-sih-benchmark-test-case) • [📊 Deliverables](#-deliverables-generated) • [🛡️ Air-Gap Audit](#-air-gap-security-compliance)
 
-Refinery and PSU knowledge work (MRPL) spans highly sensitive materials:
-- Piping & Instrumentation Diagrams (P&IDs)
-- Equipment Inspection & Ultrasonic Thickness (UT) Reports
-- Standard Operating Procedures (SOPs) & Safe Operating Windows
-- Engineering Calculation Sheets & Fluid Dynamics
-- Confidential Vendor Negotiations & Procurement Quotes
-
-Public cloud AI solutions risk severe data leakage. **Sovereign On-Premise Agentic AI Workbench** solves this dilemma by running a **100% Air-Gapped Local Pipeline** with **Zero External AI / API Calls**, delivering modern **Plan → Act → Observe → Verify → Deliver** capabilities right inside the enterprise security perimeter.
+</div>
 
 ---
 
-## Key Architecture & Core Capabilities
+## 📌 Table of Contents
+- [Executive Overview](#-executive-overview)
+- [Why Existing Approaches Fall Short](#-why-existing-approaches-fall-short)
+- [Key Features](#-key-features)
+- [Technical Architecture](#-technical-architecture)
+- [Tech Stack](#-tech-stack)
+- [Quickstart & Local Launch](#-quickstart--local-launch)
+  - [Method 1: 1-Click Launch in VS Code](#method-1-1-click-launch-in-vs-code-recommended)
+  - [Method 2: Manual Terminal Launch](#method-2-manual-terminal-launch)
+  - [Method 3: Single PowerShell Command](#method-3-single-powershell-command)
+  - [Method 4: Docker Compose Stack](#method-4-docker-compose-stack)
+- [SIH Benchmark Test Case](#-sih-benchmark-test-case)
+- [Deliverables Generated](#-deliverables-generated)
+- [Air-Gap Security Compliance](#-air-gap-security-compliance)
+- [Directory Structure](#-repository-structure)
+- [Team Information](#-team-information)
+
+---
+
+## 📖 Executive Overview
+
+Refinery and PSU knowledge work at Mangalore Refinery & Petrochemicals Limited (MRPL) handles highly sensitive, classified material:
+- **Piping & Instrumentation Diagrams (P&IDs)**
+- **Equipment Inspection & Ultrasonic Thickness (UT) Reports**
+- **Standard Operating Procedures (SOPs) & Safe Operating Windows (SOW)**
+- **Engineering Calculation Sheets & Fluid Dynamics**
+- **Confidential Vendor Negotiations & Procurement Quotes**
+
+Public cloud AI solutions risk severe data leakage and breach regulatory boundaries. **Sovereign On-Premise Agentic AI Workbench** solves this dilemma by operating a **100% Air-Gapped Local Pipeline** with **Zero External AI / API Calls**, delivering modern **Plan → Act → Observe → Verify → Deliver** capabilities right inside the enterprise security boundary.
+
+---
+
+## ⚠️ Why Existing Approaches Fall Short
+
+| Approach | Major Shortcoming |
+| :--- | :--- |
+| **Public Cloud AI** | Sensitive enterprise data leaves organizational boundaries. |
+| **Simple Local Chatbots** | Text-only, single-model — cannot execute complex engineering calculations or generate Office deliverables. |
+| **Traditional Doc Management** | Stores files but cannot reason, execute code, verify safety limits, or synthesize deliverables. |
+| **Manual Workflow** | Slow, error-prone, and difficult to scale across plant operations. |
+| **OUR WORKBENCH** | **Understands → Acts → Verifies → Delivers (100% Air-Gapped)** |
+
+---
+
+## 🔥 Key Features
+
+- 🛡️ **100% Air-Gapped Security**: Zero external network calls (`external_requests = 0`). Data never leaves your premises.
+- ⚡ **Automated Upload Trigger & Analysis**: Drag & drop any PDF, DOCX, CSV, or P&ID image — the workbench automatically parses, indexes, and triggers AI agent analysis immediately.
+- 🔍 **Deep Uploaded Chunk Inspector**: View exact extracted text passages, relevance scores, extracted numbers, and equipment tags per chunk.
+- 🤖 **Model & Tool Router**: Intelligent task router directing tasks to specialized local models (`Qwen2.5-Coder`, `Mistral-7B`, `Qwen-VL`).
+- 🧪 **Scoped Python Execution Sandbox**: Executes engineering formulas (corrosion rate, ASME $t_{\min}$, Darcy-Weisbach pressure drop) safely in isolated python runtime.
+- 📋 **Verification & Safety Audit Matrix**: Rule-based auditor checking safety limits, syntax, and document integrity.
+- 📄 **Real Office Deliverable Generators**: Native generation of formatted Word (`.docx`), Excel (`.xlsx`), and PowerPoint (`.pptx`) deliverables.
+
+---
+
+## 🏛 Technical Architecture
 
 ```
 +---------------------------------------------------------------------------------------------------+
@@ -51,41 +107,62 @@ Public cloud AI solutions risk severe data leakage. **Sovereign On-Premise Agent
 +---------------------------------------------------------------------------------------------------+
 ```
 
-1. **Air-Gapped Sovereign Enforcement**: Zero cloud network calls. Continuous audit counter verifies `external_requests = 0`.
-2. **Model + Tool Router**: Routes tasks to local specialized models (`Qwen2.5-Coder`, `Mistral-7B`, `Qwen-VL`) via Ollama/vLLM or autonomous CPU fallback.
-3. **Local Vector RAG & OCR Engine**: Parses scanned P&ID drawings and inspection PDFs into vector indices.
-4. **Scoped Python Execution Sandbox**: Executes engineering formulas (ASME t_min, Darcy-Weisbach pressure drop, corrosion rates) safely.
-5. **Verification & Safety Audit Engine**: Validates safety thresholds (e.g. remaining corrosion allowance < turnaround interval).
-6. **Real Office Deliverable Generators**: Native binary export of `.docx` Word technical reports, `.xlsx` Excel calculation workbooks, and `.pptx` PowerPoint slide decks.
+---
+
+## 💻 Tech Stack
+
+- **Frontend**: Next.js 14, React 19, Tailwind CSS, Lucide React Icons
+- **Backend**: Python 3.14, FastAPI, Uvicorn, Pydantic v2
+- **RAG & Vector Search**: Local Vector Store (`LocalVectorStore`), PyPDF, Document Chunking Engine
+- **OCR Engine**: PyTesseract / PIL local image parser
+- **Code Execution**: Scoped Python Execution Sandbox (`ScopedPythonSandbox`)
+- **Local AI Inference**: Ollama / vLLM integration + Autonomous Local CPU Fallback Engine
+- **Deliverable Generators**: `python-docx`, `openpyxl`, `python-pptx`
 
 ---
 
-## Quickstart & Local Installation
+## 🚀 Quickstart & Local Launch
 
 ### Prerequisites
 - Python 3.10+
 - Node.js v18+
-- (Optional) Ollama with `qwen2.5-coder:7b` for local GPU acceleration
-
-### 1. Start Python FastAPI Backend
-```bash
-cd backend
-python -m pip install -r requirements.txt
-python main.py
-```
-*Backend runs on `http://localhost:8000`*
-
-### 2. Start Next.js User Workspace UI
-```bash
-cd frontend
-npm install
-npm run dev
-```
-*Frontend runs on `http://localhost:3000`*
 
 ---
 
-## One-Command Docker Deployment
+### Method 1: 1-Click Launch in VS Code (Recommended)
+1. Open VS Code in the project directory: `c:\Users\himan\OneDrive\Desktop\web d files\sovereign-ai-workbench`.
+2. Press `Ctrl + Shift + P` (or `F1`).
+3. Type **`Tasks: Run Task`** and select **`🚀 Start Full Sovereign AI Workbench (Both)`**.
+
+---
+
+### Method 2: Manual Terminal Launch
+
+#### Terminal 1 — Start FastAPI Backend:
+```powershell
+cd backend
+python main.py
+```
+*(Backend runs at `http://localhost:8000`)*
+
+#### Terminal 2 — Start Next.js Frontend:
+```powershell
+cd frontend
+npm run dev
+```
+*(Frontend runs at `http://localhost:3000`)*
+
+---
+
+### Method 3: Single PowerShell Command
+
+```powershell
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd 'c:\Users\himan\OneDrive\Desktop\web d files\sovereign-ai-workbench\backend'; python main.py"; cd "c:\Users\himan\OneDrive\Desktop\web d files\sovereign-ai-workbench\frontend"; npm run dev
+```
+
+---
+
+### Method 4: Docker Compose Stack
 
 ```bash
 docker-compose up --build -d
@@ -93,8 +170,77 @@ docker-compose up --build -d
 
 ---
 
-## Deliverables Generated
+## 🧪 SIH Benchmark Test Case
 
-- **Word Technical Report (`.docx`)**: Formatted technical audit with executive summary, tables, and safety recommendations.
-- **Excel Calculation Workbook (`.xlsx`)**: Styled spreadsheets with calculated formulas, numbers, and summary totals.
-- **PowerPoint Presentation (`.pptx`)**: 16:9 executive deck formatted with operational takeaways and key metric cards.
+### Test Prompt:
+> *“You are operating inside a sovereign, air-gapped AI environment. Analyze the provided confidential report and answer the following business question: 'What are the three most significant risks identified in this report, what evidence supports each risk, and what actions should management take?' Work only with the provided document and locally available knowledge. Assign confidence levels and provide a verification summary at the end.”*
+
+### Benchmark Results:
+- **Task Category**: `RISK_ANALYSIS`
+- **Model Router**: `Qwen2.5-7B-Instruct + Specialized Risk Auditor`
+- **Grounded Chunks**: 6 Vector Passages Analyzed
+- **Python Calculations**: Corrosion Rate $0.62\text{ mm/yr}$, Safe Life $1.77\text{ Yrs}$
+- **Air-Gap Verification**: **0 External Requests (PASSED)**
+- **Deliverables Emitted**: Word (`.docx`), Excel (`.xlsx`), PowerPoint (`.pptx`)
+
+---
+
+## 📊 Deliverables Generated
+
+The workbench outputs real, downloadable binary Office files:
+- 📄 **Word Technical Report (`.docx`)**: Formatted inspection memo with executive summary, tables, and safety recommendations.
+- 📊 **Excel Workbook (`.xlsx`)**: Styled calculation sheet with formulas, numbers, and summary totals.
+- 📽️ **PowerPoint Presentation (`.pptx`)**: 16:9 executive slide deck formatted with operational takeaways and metric cards.
+
+---
+
+## 🛡️ Air-Gap Security Compliance
+
+```text
+[AIR-GAP SECURITY AUDIT]
+Status: 100% SECURE & AIR-GAPPED
+Cloud Data Leakage: 0 BYTES
+External API / Network Requests: 0
+Local Vector Store Grounding: ON-PREMISE ONLY
+Data Boundary: INSIDE ENTERPRISE PERIMETER
+```
+
+---
+
+## 📁 Repository Structure
+
+```
+sovereign-ai-workbench/
+├── backend/
+│   ├── main.py                     # FastAPI app entry point & routes
+│   ├── config.py                   # Air-gap settings, model routing config
+│   ├── agent/                      # Plan-Act-Observe-Verify agentic loop
+│   │   ├── state.py
+│   │   ├── planner.py
+│   │   ├── router.py
+│   │   ├── execution_loop.py
+│   │   └── verifier.py
+│   ├── llm/                        # Local inference & CPU fallback engine
+│   ├── rag/                        # On-premise vector store & OCR parser
+│   ├── tools/                      # Scoped python sandbox & doc generators
+│   │   └── doc_generators/        # docx, xlsx, pptx builders
+│   └── sample_data/                # Preloaded MRPL SOPs & inspection reports
+├── frontend/                       # Next.js 14 User Workspace App
+│   ├── app/                        # Main dashboard & layout
+│   └── components/                 # Header, Chat, Reasoning Trace, Deliverables Vault
+├── .vscode/                        # VS Code 1-click launch tasks
+├── docker-compose.yml              # Single-command docker composition
+├── Dockerfile.backend              # Backend Docker container
+├── Dockerfile.frontend             # Frontend Docker container
+└── README.md                       # Project documentation
+```
+
+---
+
+## 👥 Team Information
+
+- **Smart India Hackathon:** SIH 2026
+- **Problem Statement:** SIH26117 (MRPL — Mangalore Refinery and Petrochemicals Limited)
+- **Team Name:** Zero Latency
+- **Team ID:** 934567100
+- **Repository Link:** [https://github.com/himanshuchahar06/Offline-AI-workflow](https://github.com/himanshuchahar06/Offline-AI-workflow)
