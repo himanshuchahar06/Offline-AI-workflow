@@ -2,25 +2,28 @@
 
 import React, { useState } from "react";
 import WorkspaceHeader from "@/components/WorkspaceHeader";
+import HeroCommandCenter from "@/components/HeroCommandCenter";
+import DocumentCategoryGrid from "@/components/DocumentCategoryGrid";
+import AIAgentsPanel from "@/components/AIAgentsPanel";
+import SecurityCenterPanel from "@/components/SecurityCenterPanel";
+import KnowledgeRAGManager from "@/components/KnowledgeRAGManager";
 import ChatInterface from "@/components/ChatInterface";
 import AgentReasoningTrace from "@/components/AgentReasoningTrace";
-import KnowledgeRAGManager from "@/components/KnowledgeRAGManager";
-import DeliverablesVault from "@/components/DeliverablesVault";
-import SandboxConsole from "@/components/SandboxConsole";
 import ChunkAnalysisViewer from "@/components/ChunkAnalysisViewer";
-import { ShieldCheck, Cpu, Award } from "lucide-react";
+import SandboxConsole from "@/components/SandboxConsole";
+import DeliverablesVault from "@/components/DeliverablesVault";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [agentData, setAgentData] = useState<any>(null);
 
-  const handleExecutePrompt = async (prompt: string) => {
+  const handleExecutePrompt = async (prompt: string, selectedModel?: string) => {
     setIsLoading(true);
     try {
       const res = await fetch("http://localhost:8000/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt })
+        body: JSON.stringify({ prompt, model: selectedModel })
       });
       const data = await res.json();
       if (data.status === "success") {
@@ -40,41 +43,25 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-slate-950">
-      {/* Header */}
+      {/* 1. Top Header & Security Status */}
       <WorkspaceHeader />
 
-      {/* Main Content Area */}
+      {/* Main Content Dashboard */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
-        {/* Banner */}
-        <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 border border-slate-800 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
-            <div>
-              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20 mb-2">
-                <Award className="w-3.5 h-3.5" /> SMART INDIA HACKATHON 2026 — PROBLEM SIH26117
-              </div>
-              <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-white">
-                Sovereign On-Premise Agentic AI Workbench
-              </h2>
-              <p className="text-xs md:text-sm text-slate-400 mt-1 max-w-3xl leading-relaxed">
-                “Enterprise-grade AI assistance — without enterprise data leaving the premises.” Designed for confidential refinery & PSU engineering workflows at Mangalore Refinery and Petrochemicals Limited (MRPL).
-              </p>
-            </div>
+        
+        {/* 2. Hero / Command Center */}
+        <HeroCommandCenter onExecutePrompt={handleExecutePrompt} isLoading={isLoading} />
 
-            <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 text-xs space-y-1.5 shrink-0">
-              <div className="flex items-center gap-2 text-slate-300 font-medium">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>100% Air-Gapped Local Architecture</span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-400 text-[11px]">
-                <Cpu className="w-4 h-4 text-cyan-400" />
-                <span>Understand → Act → Verify → Deliver</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* 3. Security Center Panel */}
+        <SecurityCenterPanel />
 
-        {/* Top Grid: Chat & Knowledge RAG */}
+        {/* 4. Document Knowledge Category Grid (8 Asset Cards) */}
+        <DocumentCategoryGrid onSelectCategory={(cat) => handleExecutePrompt(`Analyze confidential assets in ${cat}`)} />
+
+        {/* 5. Autonomous Local AI Agents Panel */}
+        <AIAgentsPanel />
+
+        {/* 6. Execution Panel & RAG Manager */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <ChatInterface onExecutePrompt={handleExecutePrompt} isLoading={isLoading} />
@@ -84,7 +71,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Agent Reasoning Trace Graph */}
+        {/* 7. Live Agent Reasoning Timeline & Verification */}
         {agentData && (
           <AgentReasoningTrace
             taskType={agentData.task_type}
@@ -94,17 +81,17 @@ export default function Home() {
           />
         )}
 
-        {/* Dedicated Uploaded Chunk Analysis Viewer */}
+        {/* 8. Deep Uploaded Chunk Inspector */}
         {agentData && agentData.plan_steps && (
           <ChunkAnalysisViewer chunks={agentData.rag_context || []} />
         )}
 
-        {/* Python Sandbox Console */}
+        {/* 9. Python Sandbox Execution Console */}
         {agentData && agentData.python_sandbox_result && (
           <SandboxConsole pythonResult={agentData.python_sandbox_result} />
         )}
 
-        {/* Real Office Deliverables Vault */}
+        {/* 10. Real Office Deliverables Vault (.docx, .xlsx, .pptx) */}
         {agentData && (
           <DeliverablesVault
             deliverables={agentData.deliverables}
@@ -114,8 +101,13 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-900 bg-slate-950 py-4 px-6 text-center text-xs text-slate-500">
-        SIH 2026 Problem Statement SIH26117 | Team Zero Latency (934567100) | MRPL Mangalore Refinery & Petrochemicals Limited
+      <footer className="border-t border-slate-900 bg-slate-950 py-4 px-6 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div>
+          ODIN Sovereign On-Premise Agentic AI Workbench | SIH 2026 Problem SIH26117
+        </div>
+        <div className="text-amber-400 font-semibold">
+          MRPL Mangalore Refinery & Petrochemicals Limited | Team Zero Latency (934567100)
+        </div>
       </footer>
     </div>
   );

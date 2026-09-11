@@ -33,78 +33,69 @@ export default function AgentReasoningTrace({
         <div className="flex items-center gap-2.5">
           <Layers className="w-5 h-5 text-amber-400" />
           <div>
-            <h3 className="font-bold text-slate-100 text-sm">Plan-Act-Observe-Verify Agent Loop</h3>
-            <p className="text-xs text-slate-400">Live Agentic Execution Trace & Tool Router Graph</p>
+            <h3 className="font-extrabold text-slate-100 text-sm tracking-wide uppercase">
+              Agent Execution & Reasoning Timeline
+            </h3>
+            <p className="text-xs text-slate-400">Live Step-by-Step Task & Verification Pipeline</p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 text-xs">
-          <span className="bg-amber-500/10 text-amber-300 font-medium px-2.5 py-1 rounded-md border border-amber-500/20">
+          <span className="bg-amber-500/10 text-amber-300 font-bold px-2.5 py-1 rounded-md border border-amber-500/20">
             Task: {taskType.toUpperCase()}
           </span>
-          <span className="bg-cyan-500/10 text-cyan-300 font-medium px-2.5 py-1 rounded-md border border-cyan-500/20 flex items-center gap-1">
+          <span className="bg-cyan-500/10 text-cyan-300 font-bold px-2.5 py-1 rounded-md border border-cyan-500/20 flex items-center gap-1">
             <Cpu className="w-3.5 h-3.5" /> Router: {modelRouted}
           </span>
         </div>
       </div>
 
-      {/* Step Trace Grid */}
-      <div className="space-y-3 mb-6">
+      {/* Execution Timeline Grid */}
+      <div className="space-y-2.5 mb-6">
         {planSteps.map((step) => {
           const isDone = step.status === "completed" || step.status === "verified";
           const isVerified = step.status === "verified";
-          
+
           return (
             <div
               key={step.step_id}
-              className={`p-3.5 rounded-xl border transition-all duration-200 ${
+              className={`p-3 rounded-xl border transition-all duration-200 ${
                 isDone
                   ? "bg-slate-950/80 border-slate-800"
                   : "bg-amber-950/10 border-amber-500/30 animate-pulse"
               }`}
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-3">
-                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 ${
+              <div className="flex items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-3">
+                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
                     isDone ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-slate-800 text-slate-400"
                   }`}>
-                    {isDone ? <CheckCircle2 className="w-4 h-4" /> : step.step_id}
+                    {isDone ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : "●"}
                   </div>
 
                   <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-xs text-slate-200">{step.action}</span>
-                      {step.timestamp && (
-                        <span className="text-[10px] text-slate-500 flex items-center gap-1">
-                          <Clock className="w-3 h-3" /> {step.timestamp}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-slate-400 mt-0.5">{step.description}</p>
-                    
-                    {step.details && step.details.route && (
-                      <div className="mt-2 text-[11px] text-slate-400 bg-slate-900/90 px-2.5 py-1 rounded border border-slate-800 inline-flex items-center gap-2">
-                        <Terminal className="w-3 h-3 text-cyan-400" />
-                        <span>Tool Invoked: <strong className="text-slate-200">{step.details.route.tool}</strong></span>
-                        <span className="text-slate-600">|</span>
-                        <span>Model: <strong className="text-cyan-300">{step.details.route.model}</strong></span>
-                      </div>
-                    )}
+                    <span className="font-bold text-slate-200 mr-2">{step.action}</span>
+                    <span className="text-slate-400 font-normal">{step.description}</span>
                   </div>
                 </div>
 
-                <div className="shrink-0">
+                <div className="shrink-0 flex items-center gap-2">
+                  {step.timestamp && (
+                    <span className="text-[10px] text-slate-500 font-mono flex items-center gap-1">
+                      <Clock className="w-3 h-3" /> {step.timestamp}
+                    </span>
+                  )}
                   {isVerified ? (
-                    <span className="bg-emerald-500/10 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-500/30 flex items-center gap-1">
-                      <ShieldCheck className="w-3 h-3" /> VERIFIED
+                    <span className="bg-emerald-500/10 text-emerald-400 text-[9px] font-extrabold px-2 py-0.5 rounded border border-emerald-500/30">
+                      ✓ VERIFIED
                     </span>
                   ) : isDone ? (
-                    <span className="bg-slate-800 text-slate-300 text-[10px] font-medium px-2 py-0.5 rounded">
-                      COMPLETED
+                    <span className="bg-slate-800 text-slate-300 text-[9px] font-bold px-2 py-0.5 rounded">
+                      ✓ DONE
                     </span>
                   ) : (
-                    <span className="bg-amber-500/10 text-amber-400 text-[10px] font-medium px-2 py-0.5 rounded animate-pulse">
-                      IN PROGRESS
+                    <span className="bg-amber-500/10 text-amber-400 text-[9px] font-bold px-2 py-0.5 rounded animate-pulse">
+                      ● IN PROGRESS
                     </span>
                   )}
                 </div>
@@ -114,7 +105,7 @@ export default function AgentReasoningTrace({
         })}
       </div>
 
-      {/* Verification Audit Summary Card */}
+      {/* Verification Summary Card */}
       {verificationStatus && verificationStatus.checks && (
         <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
           <div className="flex items-center justify-between mb-3">
@@ -123,7 +114,7 @@ export default function AgentReasoningTrace({
               <span className="font-bold text-xs text-slate-200">Verification & Compliance Audit Matrix</span>
             </div>
             <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded border border-emerald-500/20">
-              AUDIT STATUS: {verificationStatus.status} ({verificationStatus.passed_checks_count}/{verificationStatus.total_checks_count} Checks Passed)
+              STATUS: {verificationStatus.status} ({verificationStatus.passed_checks_count}/{verificationStatus.total_checks_count} Checks Passed)
             </span>
           </div>
 
@@ -138,15 +129,6 @@ export default function AgentReasoningTrace({
               </div>
             ))}
           </div>
-
-          {verificationStatus.warnings && verificationStatus.warnings.length > 0 && (
-            <div className="mt-3 bg-amber-950/20 border border-amber-500/30 p-2.5 rounded-lg flex items-start gap-2 text-xs text-amber-300">
-              <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-              <div>
-                <strong>Asset Safety Limit Warning:</strong> {verificationStatus.warnings[0]}
-              </div>
-            </div>
-          )}
         </div>
       )}
     </div>

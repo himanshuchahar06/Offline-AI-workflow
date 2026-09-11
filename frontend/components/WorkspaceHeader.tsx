@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ShieldCheck, Cpu, Lock, Server, Zap, Activity } from "lucide-react";
+import { ShieldCheck, Cpu, Lock, Server, Zap, User, Settings, Sliders } from "lucide-react";
 
 export default function WorkspaceHeader() {
   const [airgapStatus, setAirgapStatus] = useState<any>({
@@ -32,45 +32,33 @@ export default function WorkspaceHeader() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="font-extrabold text-xl tracking-wider bg-gradient-to-r from-white via-slate-200 to-cyan-400 bg-clip-text text-transparent">
-                ODIN <span className="text-xs font-semibold text-cyan-400 tracking-normal px-2 py-0.5 rounded-full bg-cyan-950/60 border border-cyan-500/30">v2.4 SOVEREIGN</span>
+                ODIN <span className="text-xs font-semibold text-cyan-400 tracking-normal px-2 py-0.5 rounded-full bg-cyan-950/60 border border-cyan-500/30">SOVEREIGN AI WORKBENCH</span>
               </h1>
-              <span className="bg-emerald-500/10 text-emerald-400 text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5" /> AIR-GAPPED
-              </span>
             </div>
             <p className="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
-              <span className="font-medium text-slate-300">On-Premise Data & Industrial Intelligence Workbench</span>
+              <span className="font-medium text-slate-300">MRPL — Mangalore Refinery & Petrochemicals Limited</span>
               <span className="text-slate-600">•</span>
-              <span className="text-amber-400 font-semibold">MRPL SIH26117</span>
+              <span className="text-amber-400 font-semibold">SIH 2026 Team: Zero Latency</span>
             </p>
           </div>
         </div>
 
-        {/* Right Status Badges */}
-        <div className="flex items-center gap-2.5 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800">
-          <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-950 text-xs border border-emerald-500/20">
-            <Lock className="w-3.5 h-3.5 text-emerald-400" />
+        {/* Highly Visible Security Indicator */}
+        <div className="flex items-center gap-3">
+          <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-extrabold px-3.5 py-1.5 rounded-xl shadow-lg flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
             <div>
-              <div className="text-[9px] text-slate-400 uppercase font-bold tracking-wider">Cloud Leakage</div>
-              <div className="font-bold text-emerald-400 text-xs">0 BYTES</div>
+              <div className="text-[10px] tracking-widest text-emerald-300 font-black">● SYSTEM SECURE</div>
+              <div className="text-[9px] text-emerald-400 font-semibold">AIR-GAPPED / ON-PREMISE</div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-950 text-xs border border-cyan-500/20">
-            <Server className="w-3.5 h-3.5 text-cyan-400" />
-            <div>
-              <div className="text-[9px] text-slate-400 uppercase font-bold tracking-wider">Local Network</div>
-              <div className="font-bold text-cyan-300 text-xs">0 External API</div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-950 text-xs border border-amber-500/20">
-            <Cpu className="w-3.5 h-3.5 text-amber-400" />
-            <div>
-              <div className="text-[9px] text-slate-400 uppercase font-bold tracking-wider">Active Engine</div>
-              <div className="font-bold text-amber-300 text-xs truncate max-w-[130px]">
-                {airgapStatus.local_ollama_engine}
-              </div>
+          <div className="flex items-center gap-2 border-l border-slate-800 pl-3">
+            <button className="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 transition" title="Settings">
+              <Settings className="w-4 h-4" />
+            </button>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-emerald-500 p-0.5 flex items-center justify-center font-bold text-xs text-slate-950 shadow">
+              ME
             </div>
           </div>
         </div>
