@@ -1,5 +1,6 @@
 import os
 import uuid
+import json
 import asyncio
 from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks, WebSocket, WebSocketDisconnect
@@ -16,6 +17,8 @@ from rag.document_loader import DocumentLoader
 from rag.ocr_engine import OCREngine
 from agent.execution_loop import AgentExecutionLoop
 from llm.ollama_client import OllamaClient
+
+HISTORY_FILE = DELIVERABLES_DIR / "analysis_history.json"
 
 app = FastAPI(
     title="Sovereign On-Premise Agentic AI Workbench API",
@@ -51,6 +54,23 @@ def initialize_knowledge_base():
 
 initialize_knowledge_base()
 agent_loop = AgentExecutionLoop(global_vector_store)
+
+def save_analysis_history(session_data: dict):
+    """Save all analysis data persistently to disk."""
+    history = []
+    if HISTORY_FILE.exists():
+        try:
+            with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+                history = json.load(f)
+        except Exception:
+            history = []
+    
+    history.insert(0, session_data)
+    try:
+        with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+            json.dump(history[:20], f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f"Error saving analysis history: {e}")
 
 # Pydantic Schemas
 class ChatRequest(BaseModel):
@@ -89,7 +109,7 @@ def process_chat(req: ChatRequest):
         raise HTTPException(status_code=400, detail="Prompt cannot be empty.")
 
     agent_state = agent_loop.run_agent(session_id, req.prompt)
-    return {
+    res_data = {
         "status": "success",
         "session_id": session_id,
         "task_type": agent_state.task_type,
@@ -97,8 +117,12 @@ def process_chat(req: ChatRequest):
         "plan_steps": [s.model_dump() for s in agent_state.plan_steps],
         "final_response": agent_state.final_response,
         "verification_status": agent_state.verification_status,
-        "deliverables": agent_state.deliverables
+        "deliverables": agent_state.deliverables,
+        "rag_context": agent_state.rag_context,
+        "python_sandbox_result": agent_state.python_sandbox_result
     }
+    save_analysis_history(res_data)
+    return res_data
 
 @app.post("/api/rag/upload")
 async def upload_document(file: UploadFile = File(...)):
@@ -121,27 +145,32 @@ async def upload_document(file: UploadFile = File(...)):
             content=text_content,
             category="User Upload"
         )
+        
         # Run AI Agent Execution immediately on newly uploaded file!
         session_id = str(uuid.uuid4())
         upload_prompt = f"Perform complete technical analysis on uploaded file '{file.filename}', run calculations in sandbox, and generate Word report, Excel sheet, and PowerPoint presentation deck."
         agent_state = agent_loop.run_agent(session_id, upload_prompt)
+
+        res_data = {
+            "status": "success",
+            "session_id": session_id,
+            "task_type": agent_state.task_type,
+            "model_routed": agent_state.model_routed,
+            "plan_steps": [s.model_dump() for s in agent_state.plan_steps],
+            "final_response": agent_state.final_response,
+            "verification_status": agent_state.verification_status,
+            "deliverables": agent_state.deliverables,
+            "rag_context": agent_state.rag_context,
+            "python_sandbox_result": agent_state.python_sandbox_result
+        }
+        save_analysis_history(res_data)
 
         return {
             "status": "success",
             "filename": file.filename,
             "chunks_indexed": chunks_added,
             "total_documents": len(global_vector_store.documents),
-            "agent_data": {
-                "session_id": session_id,
-                "task_type": agent_state.task_type,
-                "model_routed": agent_state.model_routed,
-                "plan_steps": [s.model_dump() for s in agent_state.plan_steps],
-                "final_response": agent_state.final_response,
-                "verification_status": agent_state.verification_status,
-                "deliverables": agent_state.deliverables,
-                "rag_context": agent_state.rag_context,
-                "python_sandbox_result": agent_state.python_sandbox_result
-            }
+            "agent_data": res_data
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to process document: {str(e)}")
@@ -151,6 +180,16 @@ def get_documents():
     return {
         "documents": global_vector_store.list_documents()
     }
+
+@app.get("/api/deliverables/history")
+def get_deliverable_history():
+    if HISTORY_FILE.exists():
+        try:
+            with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+                return {"history": json.load(f)}
+        except Exception:
+            return {"history": []}
+    return {"history": []}
 
 @app.get("/api/deliverables/download/{file_name}")
 def download_deliverable(file_name: str):
@@ -175,13 +214,10 @@ async def websocket_agent_stream(websocket: WebSocket):
         while True:
             data = await websocket.receive_text()
             session_id = str(uuid.uuid4())
-            
-            # Send step-by-step progress to client
             await websocket.send_json({"type": "PLAN_CREATED", "message": "Deconstructing prompt into Plan-Act-Observe-Verify loop..."})
             await asyncio.sleep(0.3)
             
             agent_state = agent_loop.run_agent(session_id, data)
-            
             for step in agent_state.plan_steps:
                 await websocket.send_json({"type": "STEP_EXECUTION", "step": step.model_dump()})
                 await asyncio.sleep(0.2)

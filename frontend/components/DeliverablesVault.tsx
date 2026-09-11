@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { Download, FileSpreadsheet, FileText, Presentation, CheckCircle, ShieldCheck, Sparkles } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Download, FileSpreadsheet, FileText, Presentation, ShieldCheck, Sparkles, History, Eye, CheckCircle2 } from "lucide-react";
 
 interface DeliverablesVaultProps {
   deliverables: {
@@ -13,6 +13,20 @@ interface DeliverablesVaultProps {
 }
 
 export default function DeliverablesVault({ deliverables, finalResponse }: DeliverablesVaultProps) {
+  const [history, setHistory] = useState<any[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+
+  const fetchHistory = () => {
+    fetch("http://localhost:8000/api/deliverables/history")
+      .then((res) => res.json())
+      .then((data) => setHistory(data.history || []))
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    fetchHistory();
+  }, [deliverables]);
+
   if (!deliverables || Object.keys(deliverables).length === 0) return null;
 
   const getFileName = (pathStr: string) => {
@@ -22,23 +36,77 @@ export default function DeliverablesVault({ deliverables, finalResponse }: Deliv
   };
 
   return (
-    <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-md">
-      <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+    <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-md space-y-6">
+      <div className="flex items-center justify-between pb-4 border-b border-slate-800">
         <div className="flex items-center gap-2.5">
           <Sparkles className="w-5 h-5 text-emerald-400 animate-bounce" />
           <div>
-            <h3 className="font-bold text-slate-100 text-sm">Real Office Deliverables Vault</h3>
-            <p className="text-xs text-slate-400">Verified Binary .DOCX, .XLSX & .PPTX File Outputs</p>
+            <h3 className="font-extrabold text-slate-100 text-sm tracking-wide uppercase">
+              Real Office Deliverables Vault & Analysis Report
+            </h3>
+            <p className="text-xs text-slate-400">Verified Binary Word, Excel & PowerPoint File Outputs</p>
           </div>
         </div>
 
-        <span className="bg-emerald-500/10 text-emerald-400 text-xs font-bold px-3 py-1 rounded-full border border-emerald-500/30 flex items-center gap-1.5">
-          <ShieldCheck className="w-4 h-4" /> 100% VERIFIED & SECURE
-        </span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              fetchHistory();
+              setShowHistory(!showHistory);
+            }}
+            className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold px-3 py-1 rounded-lg border border-slate-700 flex items-center gap-1.5 transition"
+          >
+            <History className="w-3.5 h-3.5 text-cyan-400" />
+            <span>{showHistory ? "Hide History" : `History (${history.length})`}</span>
+          </button>
+
+          <span className="bg-emerald-500/10 text-emerald-400 text-xs font-bold px-3 py-1 rounded-full border border-emerald-500/30 flex items-center gap-1.5">
+            <ShieldCheck className="w-4 h-4" /> 100% VERIFIED & SAVED
+          </span>
+        </div>
       </div>
 
-      {/* Deliverable Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      {/* Analysis History Drawer if expanded */}
+      {showHistory && history.length > 0 && (
+        <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+            Persisted Analysis History Memory ({history.length} Sessions Saved)
+          </div>
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {history.map((item, idx) => (
+              <div key={idx} className="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800 flex items-center justify-between text-xs">
+                <div>
+                  <span className="font-bold text-slate-200">Session #{item.session_id ? item.session_id.slice(0,6) : idx+1}</span>
+                  <span className="text-slate-400 text-[11px] ml-2">Type: {item.task_type} • Model: {item.model_routed}</span>
+                </div>
+                <div className="flex gap-2">
+                  {item.deliverables && item.deliverables.docx && (
+                    <a
+                      href={`http://localhost:8000/api/deliverables/download/${getFileName(item.deliverables.docx)}`}
+                      download
+                      className="text-blue-400 hover:underline font-bold text-[11px]"
+                    >
+                      .DOCX
+                    </a>
+                  )}
+                  {item.deliverables && item.deliverables.xlsx && (
+                    <a
+                      href={`http://localhost:8000/api/deliverables/download/${getFileName(item.deliverables.xlsx)}`}
+                      download
+                      className="text-emerald-400 hover:underline font-bold text-[11px]"
+                    >
+                      .XLSX
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Deliverable File Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* DOCX Card */}
         {deliverables.docx && (
           <div className="bg-slate-950 p-4 rounded-xl border border-blue-500/30 hover:border-blue-500/60 transition flex flex-col justify-between group">
@@ -133,10 +201,19 @@ export default function DeliverablesVault({ deliverables, finalResponse }: Deliv
         )}
       </div>
 
-      {/* Text Output Summary */}
+      {/* Comprehensive Report Viewer Box */}
       {finalResponse && (
-        <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-xs text-slate-300 leading-relaxed whitespace-pre-wrap max-h-80 overflow-y-auto">
-          {finalResponse}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <span className="flex items-center gap-1.5 text-slate-200">
+              <Eye className="w-4 h-4 text-cyan-400" /> Full Analysis & Executive Deliverables Summary
+            </span>
+            <span className="text-emerald-400 font-mono">SAVED TO MEMORY DISK</span>
+          </div>
+
+          <div className="bg-slate-950 p-5 rounded-xl border border-slate-800 font-sans text-xs text-slate-300 leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto shadow-inner">
+            {finalResponse}
+          </div>
         </div>
       )}
     </div>
