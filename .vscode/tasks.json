@@ -4,7 +4,8 @@
     {
       "label": "1. Run FastAPI Backend",
       "type": "shell",
-      "command": "python main.py",
+      "command": "python",
+      "args": ["main.py"],
       "options": {
         "cwd": "${workspaceFolder}/backend"
       },
@@ -12,13 +13,14 @@
       "presentation": {
         "reveal": "always",
         "panel": "new",
-        "group": "workbench"
+        "focus": false
       }
     },
     {
       "label": "2. Run Next.js Frontend",
       "type": "shell",
-      "command": "npm run dev",
+      "command": "npm",
+      "args": ["run", "dev"],
       "options": {
         "cwd": "${workspaceFolder}/frontend"
       },
@@ -26,7 +28,7 @@
       "presentation": {
         "reveal": "always",
         "panel": "new",
-        "group": "workbench"
+        "focus": false
       }
     },
     {
